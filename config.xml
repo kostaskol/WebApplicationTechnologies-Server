@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<cfg>
+    <database>
+        <driver-class>com.mysql.jdbc.Driver</driver-class>
+        <jdbc-url>jdbc:mysql://localhost:3306/airbnb</jdbc-url>
+        <username>root</username>
+        <passwd>dataKostas&amp;&amp;base112</passwd>
+    </database>
+
+    <google-maps>
+        <api-key>AIzaSyCo3zgPrFpdoDXiWkptrjYFC9JwghbpitM</api-key>
+    </google-maps>
+
+</cfg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<codes>
+    <login-codes>
+        <unauthorised-access>100</unauthorised-access>
+        <wrong-cred>101</wrong-cred>
+        <sess-expired>102</sess-expired>
+    </login-codes>
+
+    <signup-codes>
+        <mail-exists>200</mail-exists>
+    </signup-codes>
+</codes>
