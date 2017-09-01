@@ -45,33 +45,6 @@ public class HouseEntity extends House {
         excludedDates = new ArrayList<>();
     }
 
-//    public HouseEntity(String id, float lat, float lng, int beds, int baths, int acc, boolean livingRoom, boolean smoking,
-//                       boolean pets, boolean events, float area, String desc, int minDays, String instr, float rating,
-//                       int numRatings, String dateFrom, String dateTo, float minCost,
-//                       float costPerPerson) {
-//        this.houseID = id;
-//        this.latitude = lat;
-//        this.longitude = lng;
-//        this.numBeds = beds;
-//        this.numBaths = baths;
-//        this.accommodates = acc;
-//        this.livingRoom = livingRoom;
-//        this.smoking = smoking;
-//        this.pets = pets;
-//        this.events = events;
-//        this.area = area;
-//        this.description = desc;
-//        this.minDays = minDays;
-//        this.instructions = instr;
-//        this.rating = rating;
-//        this.numRatings = numRatings;
-//        this.dateFrom = dateFrom;
-//        this.dateTo = dateTo;
-//        this.minCost = minCost;
-//        this.costPerPerson = costPerPerson;
-//        pictures = new ArrayList<>();
-//    }
-
     public void setOwnerId(int id) { this.ownerId = id; }
 
     public Integer getOwnerId() { return this.ownerId; }

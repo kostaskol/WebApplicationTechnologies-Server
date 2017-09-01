@@ -173,7 +173,7 @@ public class UserControl {
         Connection con = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT accType, approved, firstName, lastName, phoneNumber, pictureURL FROM users WHERE userID = ?";
+            String query = "SELECT accType, approved, firstName, lastName, phoneNumber, bio, pictureURL FROM users WHERE userID = ?";
             PreparedStatement pStatement = con.prepareStatement(query);
             pStatement.setInt(1, id);
             ResultSet rs = pStatement.executeQuery();
@@ -187,6 +187,7 @@ public class UserControl {
             String last = rs.getString("lastName");
             String num = rs.getString("phoneNumber");
             String localUrl = rs.getString("pictureURL");
+            String bio = rs.getString("bio");
 
             if (localUrl == null) {
                 localUrl = Constants.DIR + "/img/users/profile_default.jpg";
@@ -201,6 +202,8 @@ public class UserControl {
             user.setFirstName(first);
             user.setLastName(last);
             user.setPicture(encoded);
+            user.setpNum(num);
+            user.setBio(bio);
             return Response.ok(user).build();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
@@ -213,6 +216,40 @@ public class UserControl {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    @Path("/updateuser")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateUser(String json) {
+        System.out.println(json);
+        Gson gson = new Gson();
+        UserUpdateEntity entity = gson.fromJson(json, UserUpdateEntity.class);
+        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        Authenticator auth = new Authenticator(entity.getToken(), scopes);
+        if (!auth.authenticate()) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        int userId = auth.getId();
+
+        Connection con = null;
+        PreparedStatement pSt = null;
+        try {
+            con = DataSource.getInstance().getConnection();
+            String update = "UPDATE users SET phoneNumber = ?, bio = ? WHERE userID = ?";
+            pSt = con.prepareStatement(update);
+            pSt.setString(1, entity.getpNum());
+            pSt.setString(2, entity.getBio());
+            pSt.setInt(3, userId);
+            pSt.execute();
+            return Response.ok().build();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            Helpers.ConnectionCloser.closeAll(con, pSt, null);
         }
     }
 

@@ -6,10 +6,7 @@ import com.WAT.airbnb.etc.DateRange;
 import com.WAT.airbnb.etc.Helpers;
 import com.WAT.airbnb.rest.entities.HouseMinEntity;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import java.io.File;
@@ -18,11 +15,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
 
 @Path("/test")
 public class Test {
@@ -57,6 +58,32 @@ public class Test {
         } catch (ParseException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Path("/datetester")
+    @POST
+    public Response dateTester(String dateStr) {
+        Connection con = null;
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            con = DataSource.getInstance().getConnection();
+            String query = "SELECT lastUpdated FROM houses LIMIT 1";
+            st = con.createStatement();
+            rs = st.executeQuery(query);
+            if (rs.next()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                java.util.Date date = sdf.parse(dateStr);
+                Date sqlDate = new java.sql.Date(date.getTime());
+                System.out.println(sqlDate.compareTo(rs.getTimestamp("lastUpdated")));
+            }
+            return Response.ok().build();
+        } catch (SQLException | IOException | ParseException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            Helpers.ConnectionCloser.closeAll(con, st, rs);
         }
     }
 

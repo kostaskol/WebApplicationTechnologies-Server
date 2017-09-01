@@ -41,6 +41,13 @@ public class Helpers {
             }
             return null;
         }
+
+        static public Timestamp stringToDateTime(String strDate) throws ParseException {
+            if (strDate == null || strDate.equals("null")) return null;
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            java.util.Date date = sdf.parse(strDate);
+            return new java.sql.Timestamp(date.getTime());
+        }
     }
 
     static public class ConnectionCloser {

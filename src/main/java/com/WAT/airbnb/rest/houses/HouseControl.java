@@ -6,10 +6,9 @@ import com.WAT.airbnb.etc.DateRange;
 import com.WAT.airbnb.etc.Helpers;
 import com.WAT.airbnb.etc.QueryBuilder;
 import com.WAT.airbnb.rest.Authenticator;
-import com.WAT.airbnb.rest.entities.HouseEntity;
-import com.WAT.airbnb.rest.entities.HouseMinEntity;
-import com.WAT.airbnb.rest.entities.HousePageBundle;
+import com.WAT.airbnb.rest.entities.*;
 import com.google.gson.Gson;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import io.jsonwebtoken.SignatureException;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -388,21 +387,77 @@ public class HouseControl {
     @Path("/getpage/{pagenum}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPage(@PathParam("pagenum") int pageNum) {
-        System.out.println("Request for page: " + pageNum);
+    public Response getPage(@PathParam("pagenum") int pageNum,
+                            @QueryParam("force") boolean force,
+                            @QueryParam("timestamp") String timestampString) {
         Connection con = null;
         ResultSet rs = null;
-        ArrayList<HouseMinEntity> entities = new ArrayList<>();
+        PreparedStatement pSt = null;
+        ArrayList<House> entities = new ArrayList<>();
         try {
 
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses " +
-                    "WHERE dateTo > NOW() AND available = 1 LIMIT ?, ?";
-            PreparedStatement pSt = con.prepareStatement(query);
+            String query = "SELECT houseID, city, country, rating, numRatings, minCost, lastUpdated FROM houses " +
+                    "WHERE dateTo > NOW() AND available = 1 ORDER BY minCost ASC LIMIT ?, ?";
+            pSt = con.prepareStatement(query);
             pSt.setInt(1, pageNum * Constants.PAGE_SIZE);
             pSt.setInt(2, pageNum * Constants.PAGE_SIZE + Constants.PAGE_SIZE);
             rs = pSt.executeQuery();
-            HousePageBundle bundle = Helpers.HouseGetter.getHouseMinList(rs);
+            HousePageBundle bundle = new HousePageBundle();
+            while (rs.next()) {
+                Timestamp lastUpdated = rs.getTimestamp("lastUpdated");
+                Timestamp timeStamp = null;
+                try {
+                    timeStamp = Helpers.DateHelper.stringToDateTime(timestampString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                boolean proceed = false;
+
+                if (timeStamp == null) {
+                    proceed = true;
+                } else {
+                    proceed = lastUpdated != null && lastUpdated.compareTo(timeStamp) > 0;
+                }
+                if (proceed || force) {
+                    HouseMinEntity entity = new HouseMinEntity();
+                    entity.setCity(rs.getString("city"));
+                    entity.setCountry(rs.getString("country"));
+                    entity.setRating(rs.getFloat("rating"));
+                    entity.setNumRatings(rs.getInt("numRatings"));
+                    entity.setMinCost(rs.getFloat("minCost"));
+
+                    Connection picCon = null;
+                    PreparedStatement picpSt = null;
+                    ResultSet picRs = null;
+                    try {
+                        picCon = DataSource.getInstance().getConnection();
+                        query = "SELECT pictureURL FROM photographs WHERE houseID = ? AND main = 1 LIMIT 1";
+                        picpSt = picCon.prepareStatement(query);
+                        picpSt.setInt(1, rs.getInt("houseID"));
+                        picRs = picpSt.executeQuery();
+                        if (picRs.next()) {
+                            entity.setPicture(Helpers.FileHelper.getFileAsString(picRs.getString("pictureURL")));
+                        } else {
+                            throw new SQLException("Empty result set");
+                        }
+                        entities.add(entity);
+                    } catch (SQLException | IOException e) {
+                        e.printStackTrace();
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                    } finally {
+                        Helpers.ConnectionCloser.closeAll(picCon, picpSt, picRs);
+                    }
+                }
+            }
+
+            if (entities.size() != 0) {
+                bundle.setHouses(entities);
+                bundle.setNumPages(entities.size() / Constants.PAGE_SIZE + 1);
+                bundle.setStatus(Constants.STATUS_MODIFIED);
+            } else {
+                bundle.setStatus(Constants.STATUS_NOT_MODIFIED);
+            }
 
             Gson gson = new Gson();
             String response = gson.toJson(bundle);
@@ -412,21 +467,7 @@ public class HouseControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            Helpers.ConnectionCloser.closeAll(con, pSt, rs);
         }
     }
 
@@ -466,7 +507,7 @@ public class HouseControl {
         PreparedStatement pSt = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses WHERE ownerID = ? LIMIT 1";
+            String query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses WHERE ownerID = ?";
             pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
             rs = pSt.executeQuery();
@@ -478,29 +519,7 @@ public class HouseControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (pSt != null) {
-                try {
-                    pSt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            Helpers.ConnectionCloser.closeAll(con, pSt, rs);
         }
     }
 
@@ -677,6 +696,72 @@ public class HouseControl {
                }
            }
        }
+    }
+
+    @Path("/updatehouse/{houseId}")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateHouse(@PathParam("houseId") int houseId,
+                                String json) {
+        Gson gson = new Gson();
+        HouseUpdateEntity entity = gson.fromJson(json, HouseUpdateEntity.class);
+        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_RENTER);
+        Authenticator auth = new Authenticator(entity.getToken(), scopes);
+        if (!auth.authenticate()) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Connection con = null;
+        PreparedStatement pSt = null;
+        try {
+            con = DataSource.getInstance().getConnection();
+            String[] location = Helpers.ReverseGeocoder.convert(entity.getHouse().getLatitude(), entity.getHouse().getLongitude());
+            // TODO: Add new location to udpate
+            HouseEntity he = entity.getHouse();
+            String update = "UPDATE houses SET " +
+                    "latitude = ?, longitude = ?, city = ?, country = ?, numBeds = ?, numBaths = ?, " +
+                    "accommodates = ?, hasLivingRoom = ?, smokingAllowed = ?, petsAllowed = ?, eventsAllowed = ?, " +
+                    "wifi = ?, airconditioning = ?, heating = ?, kitchen = ?, tv = ?, parking = ?, elevator = ?, " +
+                    "area = ?, description = ?, instructions = ?, minDays = ?, " +
+                    "dateFrom = ?, dateTo = ?, minCost = ?, costPerPerson = ?, costPerDay = ?, lastUpdated = NOW() WHERE houseID = ?";
+            pSt = con.prepareStatement(update);
+            pSt.setFloat(1, he.getLatitude());
+            pSt.setFloat(2, he.getLongitude());
+            pSt.setString(3, he.getCity());
+            pSt.setString(4, he.getCountry());
+            pSt.setInt(5, he.getNumBeds());
+            pSt.setInt(6, he.getNumBaths());
+            pSt.setInt(7, he.getAccommodates());
+            pSt.setBoolean(8, he.getLivingRoom());
+            pSt.setBoolean(9, he.getSmoking());
+            pSt.setBoolean(10, he.getPets());
+            pSt.setBoolean(11, he.getEvents());
+            pSt.setBoolean(12, he.getWifi());
+            pSt.setBoolean(13, he.getAirconditioning());
+            pSt.setBoolean(14, he.getHeating());
+            pSt.setBoolean(15, he.getKitchen());
+            pSt.setBoolean(16, he.getTv());
+            pSt.setBoolean(17, he.getParking());
+            pSt.setBoolean(18, he.getElevator());
+            pSt.setFloat(19, he.getArea());
+            pSt.setString(20, he.getDescription());
+            pSt.setString(21, he.getInstructions());
+            pSt.setFloat(22, he.getMinDays());
+            pSt.setDate(23, Helpers.DateHelper.stringToDate(he.getDateFrom()));
+            pSt.setDate(24, Helpers.DateHelper.stringToDate(he.getDateTo()));
+            pSt.setFloat(25, he.getMinCost());
+            pSt.setFloat(26, he.getCostPerPerson());
+            pSt.setFloat(27, he.getCostPerDay());
+            pSt.setInt(28, houseId);
+            pSt.execute();
+
+            return Response.ok().build();
+        } catch (SQLException | IOException | ParseException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            Helpers.ConnectionCloser.closeAll(con, pSt, null);
+        }
     }
 
 

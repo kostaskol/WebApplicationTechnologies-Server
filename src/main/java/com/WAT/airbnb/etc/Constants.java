@@ -42,4 +42,7 @@ public class Constants {
     public static final int STATUS_BAD_DATE_RANGE = 205;
     public static final int STATUS_DATE_OOB = 206;
     public static final int STATUS_DATE_BOOKED = 207;
+
+    public static final int STATUS_NOT_MODIFIED = 400;
+    public static final int STATUS_MODIFIED = 401;
 }
