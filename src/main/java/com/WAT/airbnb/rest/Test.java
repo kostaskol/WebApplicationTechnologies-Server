@@ -172,6 +172,82 @@ public class Test {
         }
     }
 
+    @Path("/fixImgs")
+    @GET
+    public Response fixImages() {
+        File imgFolder = new File(Constants.DIR + "/img/houses");
+        File[] listOfFiles = imgFolder.listFiles();
+        try {
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile()) {
+                    Helpers.FileHelper.saveFileThumb(listOfFiles[i].getPath(), false);
+                }
+            }
+            return Response.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Path("/fixDb")
+    @GET
+    public Response fixDb() {
+        try {
+            File imgFolder = new File(Constants.DIR + "/img/houses");
+            File[] listOfFiles = imgFolder.listFiles();
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile()) {
+                    Connection con = null;
+                    Statement st = null;
+                    try {
+                        con = DataSource.getInstance().getConnection();
+                        String pictureUrl = listOfFiles[i].getPath();
+                        String[] tmp = pictureUrl.split("/");
+                        String fileName = tmp[tmp.length - 1];
+                        tmp = fileName.split("\\.");
+                        String fileExt = tmp[tmp.length - 1];
+
+                        String newFileName = tmp[0] + "_thumb." + fileExt;
+                        String thumbLocalUrl = Constants.DIR + "/thumbnails/houses/" + newFileName;
+                        String update = "UPDATE photographs SET thumbURL = \"" + thumbLocalUrl
+                                + "\" WHERE pictureURL = \"" + pictureUrl + "\" LIMIT 1";
+                        st = con.createStatement();
+                        st.executeUpdate(update);
+//                        String query = "SELECT photoID from photographs where pictureURL = " + pictureUrl
+//                                + " LIMIT 1";
+//                        st = con.createStatement();
+//                        rs = st.executeQuery(query);
+//                        if (rs.next()) {
+//                            int photoID = rs.getInt("photoID");
+//                            Connection wCon = null;
+//                            Statement wSt = null;
+//                            try {
+//                                wCon = DataSource.getInstance().getConnection();
+//                                String update = "UPDATE photographs SET thumbURL = " + thumbUrl +
+//                                        " WHERE photoID = " +
+//                            } catch (SQLException | IOException e) {
+//                                e.printStackTrace();
+//                                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//                            } finally {
+//                                Helpers.ConnectionCloser.closeAll(wCon, wSt, null);
+//                            }
+//                        }
+                    } catch (IOException | SQLException e) {
+                        e.printStackTrace();
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                    } finally {
+                        Helpers.ConnectionCloser.closeAll(con, st, null);
+                    }
+                }
+            }
+            return Response.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
     private Boolean getRandomBoolean() {
         return ThreadLocalRandom.current().nextInt(0, 100) >= 50;

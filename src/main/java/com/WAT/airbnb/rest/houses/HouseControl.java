@@ -153,6 +153,34 @@ public class HouseControl {
         return Response.ok().build();
     }
 
+    @Path("/thumbtest")
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response thumbTest(@FormDataParam("file") InputStream uploadedFileInputStream,
+                              @FormDataParam("file") FormDataContentDisposition fileDetails) {
+        try {
+            Helpers.FileHelper.saveFile(uploadedFileInputStream, 0, fileDetails, false);
+            return Response.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Path("/thumbtestdown")
+    @GET
+    @Produces("image/jpeg")
+    public Response thumbTestDown() {
+        String localUrl = Constants.DIR + "/thumbnails/houses/0.jpg_thumb.jpg";
+        try {
+            String base64 = Helpers.FileHelper.getFileAsString(localUrl);
+            return Response.ok(base64).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @Path("/search")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -387,9 +415,7 @@ public class HouseControl {
     @Path("/getpage/{pagenum}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPage(@PathParam("pagenum") int pageNum,
-                            @QueryParam("force") boolean force,
-                            @QueryParam("timestamp") String timestampString) {
+    public Response getPage(@PathParam("pagenum") int pageNum) {
         Connection con = null;
         ResultSet rs = null;
         PreparedStatement pSt = null;
@@ -397,7 +423,7 @@ public class HouseControl {
         try {
 
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT houseID, city, country, rating, numRatings, minCost, lastUpdated FROM houses " +
+            String query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses " +
                     "WHERE dateTo > NOW() AND available = 1 ORDER BY minCost ASC LIMIT ?, ?";
             pSt = con.prepareStatement(query);
             pSt.setInt(1, pageNum * Constants.PAGE_SIZE);
@@ -405,50 +431,35 @@ public class HouseControl {
             rs = pSt.executeQuery();
             HousePageBundle bundle = new HousePageBundle();
             while (rs.next()) {
-                Timestamp lastUpdated = rs.getTimestamp("lastUpdated");
-                Timestamp timeStamp = null;
+                HouseMinEntity entity = new HouseMinEntity();
+                entity.setCity(rs.getString("city"));
+                entity.setCountry(rs.getString("country"));
+                entity.setRating(rs.getFloat("rating"));
+                entity.setNumRatings(rs.getInt("numRatings"));
+                entity.setMinCost(rs.getFloat("minCost"));
+
+                Connection picCon = null;
+                PreparedStatement picpSt = null;
+                ResultSet picRs = null;
                 try {
-                    timeStamp = Helpers.DateHelper.stringToDateTime(timestampString);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                boolean proceed = false;
-
-                if (timeStamp == null) {
-                    proceed = true;
-                } else {
-                    proceed = lastUpdated != null && lastUpdated.compareTo(timeStamp) > 0;
-                }
-                if (proceed || force) {
-                    HouseMinEntity entity = new HouseMinEntity();
-                    entity.setCity(rs.getString("city"));
-                    entity.setCountry(rs.getString("country"));
-                    entity.setRating(rs.getFloat("rating"));
-                    entity.setNumRatings(rs.getInt("numRatings"));
-                    entity.setMinCost(rs.getFloat("minCost"));
-
-                    Connection picCon = null;
-                    PreparedStatement picpSt = null;
-                    ResultSet picRs = null;
-                    try {
-                        picCon = DataSource.getInstance().getConnection();
-                        query = "SELECT pictureURL FROM photographs WHERE houseID = ? AND main = 1 LIMIT 1";
-                        picpSt = picCon.prepareStatement(query);
-                        picpSt.setInt(1, rs.getInt("houseID"));
-                        picRs = picpSt.executeQuery();
-                        if (picRs.next()) {
-                            entity.setPicture(Helpers.FileHelper.getFileAsString(picRs.getString("pictureURL")));
-                        } else {
-                            throw new SQLException("Empty result set");
-                        }
-                        entities.add(entity);
-                    } catch (SQLException | IOException e) {
-                        e.printStackTrace();
-                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-                    } finally {
-                        Helpers.ConnectionCloser.closeAll(picCon, picpSt, picRs);
+                    picCon = DataSource.getInstance().getConnection();
+                    query = "SELECT thumbURL FROM photographs WHERE houseID = ? AND main = 1 LIMIT 1";
+                    picpSt = picCon.prepareStatement(query);
+                    picpSt.setInt(1, rs.getInt("houseID"));
+                    picRs = picpSt.executeQuery();
+                    if (picRs.next()) {
+                        entity.setPicture(Helpers.FileHelper.getFileAsString(picRs.getString("thumbURL")));
+                    } else {
+                        throw new SQLException("Empty result set");
                     }
+                    entities.add(entity);
+                } catch (SQLException | IOException e) {
+                    e.printStackTrace();
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                } finally {
+                    Helpers.ConnectionCloser.closeAll(picCon, picpSt, picRs);
                 }
+
             }
 
             if (entities.size() != 0) {
