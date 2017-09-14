@@ -2,9 +2,10 @@ package com.WAT.airbnb.rest;
 
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.DateRange;
-import com.WAT.airbnb.etc.Helpers;
-import com.WAT.airbnb.rest.entities.HouseMinEntity;
+import com.WAT.airbnb.util.DateRange;
+import com.WAT.airbnb.util.helpers.ConnectionCloser;
+import com.WAT.airbnb.util.helpers.DateHelper;
+import com.WAT.airbnb.util.helpers.FileHelper;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
@@ -18,12 +19,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
 
 @Path("/test")
 public class Test {
@@ -50,8 +48,8 @@ public class Test {
                               @QueryParam("t") String to) {
         try {
             DateRange range = new DateRange(
-                    Helpers.DateHelper.stringToDate(from),
-                    Helpers.DateHelper.stringToDate(to)
+                    DateHelper.stringToDate(from),
+                    DateHelper.stringToDate(to)
             );
 
             return Response.ok(range.toList().size()).build();
@@ -83,7 +81,7 @@ public class Test {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, st, rs);
+            ConnectionCloser.closeAll(con, st, rs);
         }
     }
 
@@ -180,7 +178,7 @@ public class Test {
         try {
             for (int i = 0; i < listOfFiles.length; i++) {
                 if (listOfFiles[i].isFile()) {
-                    Helpers.FileHelper.saveFileThumb(listOfFiles[i].getPath(), false);
+                    FileHelper.saveFileThumb(listOfFiles[i].getPath(), false);
                 }
             }
             return Response.ok().build();
@@ -237,7 +235,7 @@ public class Test {
                         e.printStackTrace();
                         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
                     } finally {
-                        Helpers.ConnectionCloser.closeAll(con, st, null);
+                        ConnectionCloser.closeAll(con, st, null);
                     }
                 }
             }

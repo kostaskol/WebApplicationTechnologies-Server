@@ -2,22 +2,18 @@ package com.WAT.airbnb.rest.houses;
 
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.DateRange;
-import com.WAT.airbnb.etc.Helpers;
-import com.WAT.airbnb.etc.QueryBuilder;
+import com.WAT.airbnb.util.DateRange;
+import com.WAT.airbnb.util.QueryBuilder;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.*;
+import com.WAT.airbnb.util.helpers.*;
 import com.google.gson.Gson;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-import io.jsonwebtoken.SignatureException;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
@@ -37,7 +33,7 @@ public class HouseControl {
                                   @FormDataParam("data") String jsonString) {
         Gson gson = new Gson();
         HouseEntity entity = gson.fromJson(jsonString, HouseEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_RENTER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
         Authenticator auth = new Authenticator(token, scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -47,7 +43,7 @@ public class HouseControl {
         entity.setNumRatings(0);
 
         try {
-            String[] addr = Helpers.ReverseGeocoder.convert(entity.getLatitude(), entity.getLongitude());
+            String[] addr = ReverseGeocoder.convert(entity.getLatitude(), entity.getLongitude());
             if (addr != null) {
                 entity.setAddress(addr[Constants.ADDR_OFFS]);
                 entity.setCountry(addr[Constants.COUNTRY_OFFS]);
@@ -102,8 +98,8 @@ public class HouseControl {
             pSt.setString(24, entity.getInstructions()); // instructions
             pSt.setFloat(25, 0f); // average rating
             pSt.setInt(26, 0); // number of ratings
-            pSt.setDate(27, Helpers.DateHelper.stringToDate(entity.getDateFrom())); // available from
-            pSt.setDate(28, Helpers.DateHelper.stringToDate(entity.getDateTo())); // available to
+            pSt.setDate(27, DateHelper.stringToDate(entity.getDateFrom())); // available from
+            pSt.setDate(28, DateHelper.stringToDate(entity.getDateTo())); // available to
             pSt.setFloat(29, entity.getMinCost()); // minimum cost
             pSt.setFloat(30, entity.getCostPerPerson()); // cost per person
             pSt.setFloat(31, entity.getCostPerDay()); // cost per day
@@ -120,7 +116,7 @@ public class HouseControl {
                 throw new SQLException("No inserted id");
             }
 
-            String fileUrl = Helpers.FileHelper.saveFile(uploadedFileInputStream, insertedId, fileDetails, false);
+            String fileUrl = FileHelper.saveFile(uploadedFileInputStream, insertedId, fileDetails, false);
 
             insertSt = "INSERT INTO photographs (houseID, main, pictureURL)" +
                     "VALUES " +
@@ -159,7 +155,7 @@ public class HouseControl {
     public Response thumbTest(@FormDataParam("file") InputStream uploadedFileInputStream,
                               @FormDataParam("file") FormDataContentDisposition fileDetails) {
         try {
-            Helpers.FileHelper.saveFile(uploadedFileInputStream, 0, fileDetails, false);
+            FileHelper.saveFile(uploadedFileInputStream, 0, fileDetails, false);
             return Response.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,7 +169,7 @@ public class HouseControl {
     public Response thumbTestDown() {
         String localUrl = Constants.DIR + "/thumbnails/houses/0.jpg_thumb.jpg";
         try {
-            String base64 = Helpers.FileHelper.getFileAsString(localUrl);
+            String base64 = FileHelper.getFileAsString(localUrl);
             return Response.ok(base64).build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -311,20 +307,20 @@ public class HouseControl {
             }
             if (hasArgs[7]) {
                 try {
-                    pSt.setDate(curr++, Helpers.DateHelper.stringToDate(entity.getDateFrom()));
-                    pSt.setDate(curr++, Helpers.DateHelper.stringToDate(entity.getDateTo()));
+                    pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateFrom()));
+                    pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateTo()));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             } else if (hasArgs[8]) {
                 try {
-                    pSt.setDate(curr++, Helpers.DateHelper.stringToDate(entity.getDateFrom()));
+                    pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateFrom()));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             } else if (hasArgs[9]) {
                 try {
-                    pSt.setDate(curr++, Helpers.DateHelper.stringToDate(entity.getDateTo()));
+                    pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateTo()));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -355,7 +351,7 @@ public class HouseControl {
                 pSt.setInt(1, minEntity.getHouseId());
                 ResultSet picRs = pSt.executeQuery();
                 if (picRs.next()) {
-                    minEntity.setPicture(Helpers.FileHelper.getFileAsString(picRs.getString("pictureURL")));
+                    minEntity.setPicture(FileHelper.getFileAsString(picRs.getString("pictureURL")));
                 }
 
                 try {
@@ -448,7 +444,7 @@ public class HouseControl {
                     picpSt.setInt(1, rs.getInt("houseID"));
                     picRs = picpSt.executeQuery();
                     if (picRs.next()) {
-                        entity.setPicture(Helpers.FileHelper.getFileAsString(picRs.getString("thumbURL")));
+                        entity.setPicture(FileHelper.getFileAsString(picRs.getString("thumbURL")));
                     } else {
                         throw new SQLException("Empty result set");
                     }
@@ -457,18 +453,13 @@ public class HouseControl {
                     e.printStackTrace();
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
                 } finally {
-                    Helpers.ConnectionCloser.closeAll(picCon, picpSt, picRs);
+                    ConnectionCloser.closeAll(picCon, picpSt, picRs);
                 }
 
             }
 
-            if (entities.size() != 0) {
-                bundle.setHouses(entities);
-                bundle.setNumPages(entities.size() / Constants.PAGE_SIZE + 1);
-                bundle.setStatus(Constants.STATUS_MODIFIED);
-            } else {
-                bundle.setStatus(Constants.STATUS_NOT_MODIFIED);
-            }
+            bundle.setHouses(entities);
+            bundle.setNumPages(entities.size() / Constants.PAGE_SIZE + 1);
 
             Gson gson = new Gson();
             String response = gson.toJson(bundle);
@@ -478,7 +469,7 @@ public class HouseControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
     }
 
@@ -488,7 +479,7 @@ public class HouseControl {
     public Response test(@QueryParam("lat") float lat, @QueryParam("lng") float lng) {
         try {
             System.out.println("Called");
-            String[] s = Helpers.ReverseGeocoder.convert(lat, lng);
+            String[] s = ReverseGeocoder.convert(lat, lng);
             for (String str : s) {
                 System.out.println(str);
             }
@@ -504,7 +495,7 @@ public class HouseControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersHousesMin(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_RENTER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
         Authenticator auth = new Authenticator(token, scopes);
 
         if (!auth.authenticate()) {
@@ -522,7 +513,7 @@ public class HouseControl {
             pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
             rs = pSt.executeQuery();
-            HousePageBundle bundle = Helpers.HouseGetter.getHouseMinList(rs);
+            HousePageBundle bundle = HouseGetter.getHouseMinList(rs);
             Gson gson = new Gson();
             String jsonString = gson.toJson(bundle);
             return Response.ok(jsonString).build();
@@ -530,7 +521,7 @@ public class HouseControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
     }
 
@@ -608,8 +599,8 @@ public class HouseControl {
                house.setInstructions(rs.getString("instructions"));
                house.setRating(rs.getFloat("rating"));
                house.setNumRatings(rs.getInt("numRatings"));
-               house.setDateFrom(Helpers.DateHelper.dateToString(rs.getDate("dateFrom")));
-               house.setDateTo(Helpers.DateHelper.dateToString(rs.getDate("dateTo")));
+               house.setDateFrom(DateHelper.dateToString(rs.getDate("dateFrom")));
+               house.setDateTo(DateHelper.dateToString(rs.getDate("dateTo")));
                house.setMinCost(rs.getFloat("minCost"));
                house.setCostPerPerson(rs.getFloat("costPerPerson"));
                house.setCostPerDay(rs.getFloat("costPerDay"));
@@ -620,7 +611,7 @@ public class HouseControl {
                for (Date[] date : dateList) {
                     List<LocalDate> localDates = new DateRange(date[0], date[1]).toList();
                     for (LocalDate d : localDates) {
-                        excludedDates.add(Helpers.DateHelper.dateToString(Date.valueOf(d)));
+                        excludedDates.add(DateHelper.dateToString(Date.valueOf(d)));
                     }
                }
 
@@ -634,7 +625,7 @@ public class HouseControl {
                pSt.setInt(1, houseId);
                picRs = pSt.executeQuery();
                while (picRs.next()) {
-                   house.addPicture(Helpers.FileHelper.getFileAsString(picRs.getString("pictureURL")));
+                   house.addPicture(FileHelper.getFileAsString(picRs.getString("pictureURL")));
                }
 
                try {
@@ -716,7 +707,7 @@ public class HouseControl {
                                 String json) {
         Gson gson = new Gson();
         HouseUpdateEntity entity = gson.fromJson(json, HouseUpdateEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_RENTER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
         Authenticator auth = new Authenticator(entity.getToken(), scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -726,8 +717,7 @@ public class HouseControl {
         PreparedStatement pSt = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String[] location = Helpers.ReverseGeocoder.convert(entity.getHouse().getLatitude(), entity.getHouse().getLongitude());
-            // TODO: Add new location to udpate
+            String[] location = ReverseGeocoder.convert(entity.getHouse().getLatitude(), entity.getHouse().getLongitude());
             HouseEntity he = entity.getHouse();
             String update = "UPDATE houses SET " +
                     "latitude = ?, longitude = ?, city = ?, country = ?, numBeds = ?, numBaths = ?, " +
@@ -758,8 +748,8 @@ public class HouseControl {
             pSt.setString(20, he.getDescription());
             pSt.setString(21, he.getInstructions());
             pSt.setFloat(22, he.getMinDays());
-            pSt.setDate(23, Helpers.DateHelper.stringToDate(he.getDateFrom()));
-            pSt.setDate(24, Helpers.DateHelper.stringToDate(he.getDateTo()));
+            pSt.setDate(23, DateHelper.stringToDate(he.getDateFrom()));
+            pSt.setDate(24, DateHelper.stringToDate(he.getDateTo()));
             pSt.setFloat(25, he.getMinCost());
             pSt.setFloat(26, he.getCostPerPerson());
             pSt.setFloat(27, he.getCostPerDay());
@@ -771,7 +761,7 @@ public class HouseControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser.closeAll(con, pSt, null);
         }
     }
 
@@ -784,7 +774,7 @@ public class HouseControl {
                                   @FormDataParam("token") String token,
                                   @PathParam("houseId") int houseID) {
 
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_RENTER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
         Authenticator auth = new Authenticator(token, scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -794,7 +784,7 @@ public class HouseControl {
         Connection con = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String fileUrl = Helpers.FileHelper.saveFile(uploadedInputStream, id, fileDetails,false);
+            String fileUrl = FileHelper.saveFile(uploadedInputStream, id, fileDetails,false);
             String insert = "INSERT INTO photographs (houseID, pictureURL, main)" +
                     "VALUES (" +
                     "?, ?, 0)";

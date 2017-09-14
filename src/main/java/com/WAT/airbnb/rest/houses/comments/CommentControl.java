@@ -2,9 +2,9 @@ package com.WAT.airbnb.rest.houses.comments;
 
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.Helpers;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.CommentEntity;
+import com.WAT.airbnb.util.helpers.ScopeFiller;
 import com.google.gson.Gson;
 
 import javax.ws.rs.*;
@@ -28,7 +28,7 @@ public class CommentControl {
                                String json) {
         Gson gson = new Gson();
         CommentEntity comment = gson.fromJson(json, CommentEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(comment.getToken(), scopes);
 
         if (!auth.authenticate()) {
@@ -70,7 +70,7 @@ public class CommentControl {
                          String json) {
         Gson gson = new Gson();
         CommentEntity comment = gson.fromJson(json, CommentEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(comment.getToken(), scopes);
 
         if (!auth.authenticate()) {

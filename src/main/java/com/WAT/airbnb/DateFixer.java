@@ -1,7 +1,7 @@
 package com.WAT.airbnb;
 
 import com.WAT.airbnb.db.DataSource;
-import com.WAT.airbnb.etc.DateRange;
+import com.WAT.airbnb.util.DateRange;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

@@ -1,4 +1,4 @@
-package com.WAT.airbnb.etc;
+package com.WAT.airbnb.util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

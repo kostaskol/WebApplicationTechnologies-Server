@@ -1,16 +1,11 @@
 package com.WAT.airbnb.rest;
 
-import com.WAT.airbnb.etc.BlackList;
+import com.WAT.airbnb.util.blacklist.BlackList;
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.Helpers;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureException;
 
-import javax.naming.AuthenticationException;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 public class Authenticator {

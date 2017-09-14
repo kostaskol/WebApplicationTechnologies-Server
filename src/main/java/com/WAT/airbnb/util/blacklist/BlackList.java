@@ -1,6 +1,7 @@
-package com.WAT.airbnb.etc;
+package com.WAT.airbnb.util.blacklist;
 
 import com.WAT.airbnb.db.DataSource;
+import com.WAT.airbnb.etc.Constants;
 
 import java.io.IOException;
 import java.sql.Connection;

@@ -2,11 +2,9 @@ package com.WAT.airbnb.rest.houses.bookings;
 
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.Helpers;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.*;
 import com.google.gson.Gson;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.WAT.airbnb.util.helpers.*;
+
 @Path("/booking")
 public class BookingControl {
     @Path("/new")
@@ -27,7 +27,7 @@ public class BookingControl {
     public Response newBooking(String json) {
         Gson gson = new Gson();
         BookingEntity entity = gson.fromJson(json, BookingEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(entity.getToken(), scopes);
 
         if (!auth.authenticate()) {
@@ -46,8 +46,8 @@ public class BookingControl {
             pSt.setInt(1, userId);
             pSt.setInt(2, entity.getHouseId());
             pSt.setInt(3, entity.getGuests());
-            pSt.setDate(4, Helpers.DateHelper.stringToDate(entity.getDateFrom()));
-            pSt.setDate(5, Helpers.DateHelper.stringToDate(entity.getDateTo()));
+            pSt.setDate(4, DateHelper.stringToDate(entity.getDateFrom()));
+            pSt.setDate(5, DateHelper.stringToDate(entity.getDateTo()));
             pSt.execute();
             return Response.ok().build();
         } catch (SQLException | IOException | ParseException e) {
@@ -69,7 +69,7 @@ public class BookingControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRentersBookings(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_RENTER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
         Authenticator auth = new Authenticator(token, scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -108,12 +108,12 @@ public class BookingControl {
                 minEntity.setRating(rs.getFloat("rating"));
                 minEntity.setNumRatings(rs.getInt("numRatings"));
                 minEntity.setMinCost(rs.getFloat("minCost"));
-                minEntity.setPicture(Helpers.FileHelper.getFileAsString(rs.getString("pictureURL")));
+                minEntity.setPicture(FileHelper.getFileAsString(rs.getString("pictureURL")));
 
                 BookedHouseEntity bookedHouseEntity = new BookedHouseEntity();
                 bookedHouseEntity.setBookingId(rs.getInt("bookingID"));
-                bookedHouseEntity.setDateFrom(Helpers.DateHelper.dateToString(rs.getDate("dateFrom")));
-                bookedHouseEntity.setDateTo(Helpers.DateHelper.dateToString(rs.getDate("dateTo")));
+                bookedHouseEntity.setDateFrom(DateHelper.dateToString(rs.getDate("dateFrom")));
+                bookedHouseEntity.setDateTo(DateHelper.dateToString(rs.getDate("dateTo")));
                 bookedHouseEntity.setHouse(minEntity);
 
                 entities.add(bookedHouseEntity);
@@ -126,7 +126,7 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
     }
 
@@ -135,7 +135,7 @@ public class BookingControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersBookings(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(token, scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -155,8 +155,8 @@ public class BookingControl {
             rs = pSt.executeQuery();
             while (rs.next()) {
                 String[] dates = new String[3];
-                dates[0] = Helpers.DateHelper.dateToString(rs.getDate("dateFrom"));
-                dates[1] = Helpers.DateHelper.dateToString(rs.getDate("dateTo"));
+                dates[0] = DateHelper.dateToString(rs.getDate("dateFrom"));
+                dates[1] = DateHelper.dateToString(rs.getDate("dateTo"));
                 dates[2] = String.valueOf(rs.getInt("bookingID"));
                 houseMap.put(rs.getInt("houseID"), dates);
             }
@@ -164,7 +164,7 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
 
         ArrayList<BookedHouseEntity> entities = new ArrayList<>();
@@ -176,7 +176,7 @@ public class BookingControl {
                 pSt = con.prepareStatement(query);
                 pSt.setInt(1, houseId);
                 rs = pSt.executeQuery();
-                HousePageBundle entityBundle = Helpers.HouseGetter.getHouseMinList(rs);
+                HousePageBundle entityBundle = HouseGetter.getHouseMinList(rs);
                 BookedHouseEntity entity = new BookedHouseEntity();
                 for (House minEntity : entityBundle.getHouses()) {
                     HouseMinEntity houseMinEntity = (HouseMinEntity) minEntity;
@@ -191,7 +191,7 @@ public class BookingControl {
                 e.printStackTrace();
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             } finally {
-                Helpers.ConnectionCloser.closeAll(con, pSt, rs);
+                ConnectionCloser.closeAll(con, pSt, rs);
             }
         }
 
@@ -205,7 +205,7 @@ public class BookingControl {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response deleteBooking(@PathParam("bookingId") int bookingId,
                                   String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(token, scopes);
 
         if (!auth.authenticate()) {
@@ -227,7 +227,7 @@ public class BookingControl {
                 return Response.ok("{\"status\": " + Constants.BOOKING_NOT_EXPIRED + "}").build();
             }
 
-            Helpers.ConnectionCloser.closeAll(null, pSt, rs);
+            ConnectionCloser.closeAll(null, pSt, rs);
 
             query = "SELECT NULL FROM bookings WHERE bookingId = ? AND userID = ?";
             pSt = con.prepareStatement(query);
@@ -241,7 +241,7 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
 
 
@@ -256,7 +256,7 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser.closeAll(con, pSt, null);
         }
 
 

@@ -5,6 +5,11 @@ import com.WAT.airbnb.etc.*;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.*;
 import com.WAT.airbnb.rest.jacksonClasses.authentication.LoginBean;
+import com.WAT.airbnb.util.XmlParser;
+import com.WAT.airbnb.util.blacklist.BlackList;
+import com.WAT.airbnb.util.helpers.ConnectionCloser;
+import com.WAT.airbnb.util.helpers.DateHelper;
+import com.WAT.airbnb.util.helpers.ScopeFiller;
 import com.google.gson.Gson;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -12,7 +17,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.naming.AuthenticationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -65,7 +69,7 @@ public class UserControl {
             pStatement.setString(4, bean.getFirstName());
             pStatement.setString(5, bean.getLastName());
             pStatement.setString(6, bean.getPhoneNumber());
-            Date sqlDate = Helpers.DateHelper.stringToDate(bean.getDateOfBirth());
+            Date sqlDate = DateHelper.stringToDate(bean.getDateOfBirth());
             pStatement.setDate(7, sqlDate);
             pStatement.execute();
             return Response.ok().build();
@@ -160,7 +164,7 @@ public class UserControl {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getUser(AuthenticationEntity authEnt) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(authEnt.getToken(), scopes);
 
         try {
@@ -226,7 +230,7 @@ public class UserControl {
         System.out.println(json);
         Gson gson = new Gson();
         UserUpdateEntity entity = gson.fromJson(json, UserUpdateEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(entity.getToken(), scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -249,7 +253,7 @@ public class UserControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            Helpers.ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser.closeAll(con, pSt, null);
         }
     }
 
@@ -257,7 +261,7 @@ public class UserControl {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public Response verifyToke(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(token, scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -271,7 +275,7 @@ public class UserControl {
     public Response changeEmail(String json) {
         Gson gson = new Gson();
         ChangeMailEntity entity = gson.fromJson(json, ChangeMailEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(entity.getToken(), scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();

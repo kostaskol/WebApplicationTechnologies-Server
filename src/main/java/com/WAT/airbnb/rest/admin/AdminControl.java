@@ -2,16 +2,13 @@ package com.WAT.airbnb.rest.admin;
 
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.Helpers;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.UserEntity;
 import com.WAT.airbnb.rest.entities.UserMinEntity;
+import com.WAT.airbnb.util.helpers.*;
 import com.google.gson.Gson;
 import com.jamesmurty.utils.XMLBuilder;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.SignatureException;
 
-import javax.naming.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -76,7 +73,7 @@ public class AdminControl {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public Response verifyToken(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_ADMIN);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(token, scopes);
         System.out.println("Token = " + token);
         try {
@@ -92,7 +89,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApprove(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_ADMIN);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(token, scopes);
         try {
             auth.authenticate();
@@ -118,9 +115,9 @@ public class AdminControl {
                 user.setApproved(rs.getBoolean("approved"));
                 String base64;
                 if (rs.getString("pictureURL") != null)
-                    base64 = Helpers.FileHelper.getFileAsString(rs.getString("pictureURL"));
+                    base64 = FileHelper.getFileAsString(rs.getString("pictureURL"));
                 else
-                    base64 = Helpers.FileHelper.getFileAsString(Constants.DIR + "/img/users/profile_default.jpg");
+                    base64 = FileHelper.getFileAsString(Constants.DIR + "/img/users/profile_default.jpg");
                 user.setPicture(base64);
                 users.add(user);
             }
@@ -157,7 +154,7 @@ public class AdminControl {
                               String json) {
         Gson gson = new Gson();
         UserEntity entity = gson.fromJson(json, UserEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_ADMIN);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(entity.getToken(), scopes);
         try {
             auth.authenticate();
@@ -181,7 +178,7 @@ public class AdminControl {
             pSt.setString(2, entity.getFirstName());
             pSt.setString(3, entity.getLastName());
             pSt.setString(4, entity.getpNum());
-            pSt.setDate(5, Helpers.DateHelper.stringToDate(entity.getDateOfBirth()));
+            pSt.setDate(5, DateHelper.stringToDate(entity.getDateOfBirth()));
             pSt.setString(6, entity.getCountry());
             pSt.setString(7, entity.getBio());
             pSt.setInt(8, userId);
@@ -199,7 +196,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response approve(@PathParam(value="userId") int userId,
                             String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_ADMIN);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(token, scopes);
         try {
             auth.authenticate();
@@ -234,7 +231,7 @@ public class AdminControl {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam(value="userId") int userId,
                             String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_ADMIN);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(token, scopes);
         try {
             auth.authenticate();
@@ -260,14 +257,14 @@ public class AdminControl {
                 entity.setBio(rs.getString("bio"));
                 String base64;
                 if (rs.getString("pictureURL") != null) {
-                    base64 = Helpers.FileHelper.getFileAsString(rs.getString("pictureURL"));
+                    base64 = FileHelper.getFileAsString(rs.getString("pictureURL"));
                 } else {
-                    base64 = Helpers.FileHelper.getFileAsString(Constants.DIR + "/img/users/profile_default.jpg");
+                    base64 = FileHelper.getFileAsString(Constants.DIR + "/img/users/profile_default.jpg");
                 }
                 entity.setPicture(base64);
                 entity.setCountry(rs.getString("country"));
                 entity.setApproved(rs.getBoolean("approved"));
-                entity.setDateOfBirth(Helpers.DateHelper.dateToString(rs.getDate("dateOfBirth")));
+                entity.setDateOfBirth(DateHelper.dateToString(rs.getDate("dateOfBirth")));
 
                 Gson gson = new Gson();
                 String json = gson.toJson(entity);
@@ -306,7 +303,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApprovalList(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_ADMIN);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(token, scopes);
         try {
             auth.authenticate();
@@ -334,7 +331,7 @@ public class AdminControl {
                 if (path == null) {
                     path = Constants.DIR + "/img/users/profile_default.jpg";
                 }
-                String base64 = Helpers.FileHelper.getFileAsString(path);
+                String base64 = FileHelper.getFileAsString(path);
                 user.setPicture(base64);
                 entities.add(user);
             }
@@ -370,7 +367,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_XML)
     public Response exportRaw(String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_ADMIN);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(token, scopes);
         try {
             auth.authenticate();
@@ -410,7 +407,7 @@ public class AdminControl {
             bookings = bookSt.executeQuery(query);
 
 
-            XMLBuilder xmlBuilder = Helpers.XmlBuilder.getXml(users, houses, comments, bookings, messages);
+            XMLBuilder xmlBuilder = XmlBuilder.getXml(users, houses, comments, bookings, messages);
             if (xmlBuilder == null) {
                 throw new NullPointerException("XMLBuilder is null");
             }

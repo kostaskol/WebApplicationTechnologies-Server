@@ -2,15 +2,14 @@ package com.WAT.airbnb.rest.users.messages;
 
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.Helpers;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.MessageEntity;
+import com.WAT.airbnb.util.helpers.ScopeFiller;
 import com.google.gson.Gson;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +27,7 @@ public class MessageControl {
                                 String json) {
         Gson gson = new Gson();
         MessageEntity message = gson.fromJson(json, MessageEntity.class);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(message.getToken(), scopes);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -70,7 +69,7 @@ public class MessageControl {
             @PathParam("messageId") int messageId,
             String token) {
         System.out.println("Message id = " + messageId);
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(token, scopes);
 
         if (!auth.authenticate()) {
@@ -158,7 +157,7 @@ public class MessageControl {
     public Response getMessages(
             @PathParam("received") int received,
             String token) {
-        List<String> scopes = Helpers.ScopeFiller.fillScope(Constants.TYPE_USER);
+        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
         Authenticator auth = new Authenticator(token, scopes);
 
         if (!auth.authenticate()) {

@@ -1,7 +1,7 @@
 package com.WAT.airbnb.db;
 
 import com.WAT.airbnb.etc.Constants;
-import com.WAT.airbnb.etc.XmlParser;
+import com.WAT.airbnb.util.XmlParser;
 import org.apache.commons.dbcp.BasicDataSource;
 
 import java.io.IOException;

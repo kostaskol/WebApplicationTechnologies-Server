@@ -1,4 +1,4 @@
-package com.WAT.airbnb.etc;
+package com.WAT.airbnb.util;
 
 public class QueryBuilder {
     private StringBuilder builder;
