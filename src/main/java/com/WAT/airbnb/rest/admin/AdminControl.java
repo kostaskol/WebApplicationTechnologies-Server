@@ -8,6 +8,9 @@ import com.WAT.airbnb.rest.entities.UserMinEntity;
 import com.WAT.airbnb.util.helpers.*;
 import com.google.gson.Gson;
 import com.jamesmurty.utils.XMLBuilder;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -361,11 +364,30 @@ public class AdminControl {
         }
     }
 
+    @Path("/getxml")
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getXml(@QueryParam("t") String t) {
+        System.out.println("Token = " + t);
+        Authenticator auth = new Authenticator(t);
+        try {
+            auth.authenticateExport();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        File file = new File(Constants.DIR + "/exp.xml");
+        Response.ResponseBuilder responseBuilder = Response.ok((Object) file);
+        responseBuilder.header("Content-Disposition", "attachment; filename=\"exported.xml\"");
+        return responseBuilder.build();
+    }
+
 
     @Path("/rawexport")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response exportRaw(String token) {
         List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
         Authenticator auth = new Authenticator(token, scopes);
@@ -414,10 +436,12 @@ public class AdminControl {
 
             Properties outputProperties = new Properties();
             outputProperties.put(javax.xml.transform.OutputKeys.METHOD, "xml");
-            PrintWriter writer = new PrintWriter(new FileOutputStream(Constants.DIR + "/test.xml"));
+            PrintWriter writer = new PrintWriter(new FileOutputStream(Constants.DIR + "/exp.xml"));
             xmlBuilder.toWriter(writer, outputProperties);
-            System.out.println("Returning: " + xmlBuilder.asString());
-            return Response.ok(xmlBuilder.asString(outputProperties)).build();
+            JwtBuilder builder = Jwts.builder()
+                    .setExpiration(new Date(System.currentTimeMillis() + 180000)); // Give the browser 1 second to
+                                                                                    // initiate the download
+            return Response.ok(builder.signWith(SignatureAlgorithm.HS256, Constants.key).compact()).build();
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

@@ -5,6 +5,7 @@ import com.jamesmurty.utils.XMLBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Struct;
 
 import static java.lang.String.valueOf;
 
@@ -34,13 +35,27 @@ public class XmlBuilder {
                         .t(users.getString("lastName"))
                         .up()
                         .e("PhoneNumber")
-                        .t(users.getString("phoneNumber"))
+                        .t(users.getString("phoneNumber") == null ? "N/A" : users.getString("phoneNumber"))
                         .up()
-                        .e("DateOfBirth")
-                        .t(DateHelper.dateToString(users.getDate("dateOfBirth")))
-                        .up()
+                        .e("DateOfBirth");
+                        String dob;
+                        if (users.getDate("dateOfBirth") == null) {
+                            dob = "N/A";
+                        } else {
+                            dob = DateHelper.dateToString(users.getDate("dateOfBirth"));
+                        }
+                        xmlBuilder = xmlBuilder
+                        .t(dob)
+                        .up();
+                        String country;
+                        if (users.getString("country") == null) {
+                            country = "N/A";
+                        } else {
+                            country = users.getString("country");
+                        }
+                        xmlBuilder = xmlBuilder
                         .e("Country")
-                        .t(users.getString("country"))
+                        .t(country)
                         .up();
                 String bio = users.getString("bio");
                 if (bio == null) {

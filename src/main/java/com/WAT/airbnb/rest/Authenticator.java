@@ -19,6 +19,17 @@ public class Authenticator {
         id = null;
     }
 
+    public Authenticator(String token) {
+        this.token = token;
+    }
+
+    public void authenticateExport() throws Exception {
+        Jws<Claims> claims = Jwts.parser()
+                .setSigningKey(Constants.key)
+                .parseClaimsJws(this.token);
+
+    }
+
     public boolean authenticate() {
         BlackList blackList = BlackList.getInstance();
         Jws<Claims> claims = Jwts.parser()

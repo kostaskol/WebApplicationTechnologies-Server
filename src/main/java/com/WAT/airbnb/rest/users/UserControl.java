@@ -11,6 +11,7 @@ import com.WAT.airbnb.util.helpers.ConnectionCloser;
 import com.WAT.airbnb.util.helpers.DateHelper;
 import com.WAT.airbnb.util.helpers.ScopeFiller;
 import com.google.gson.Gson;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -175,6 +176,32 @@ public class UserControl {
 
         int id = auth.getId();
         Connection con = null;
+
+        boolean enoughData;
+        Connection dCon = null;
+        PreparedStatement dPSt = null;
+        ResultSet dRs = null;
+        try {
+            dCon = DataSource.getInstance().getConnection();
+            String query = "SELECT COUNT(*) AS c FROM comments WHERE userID = ?";
+            dPSt = dCon.prepareStatement(query);
+            dPSt.setInt(1, id);
+            dRs = dPSt.executeQuery();
+            if (dRs.next()) {
+                if (dRs.getInt("c") > 5) {
+                    enoughData = true;
+                } else {
+                    enoughData = false;
+                }
+            } else {
+                enoughData = false;
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.closeAll(dCon, dPSt, dRs);
+        }
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT accType, approved, firstName, lastName, phoneNumber, bio, pictureURL FROM users WHERE userID = ?";
@@ -208,6 +235,7 @@ public class UserControl {
             user.setPicture(encoded);
             user.setpNum(num);
             user.setBio(bio);
+            user.setEnoughData(enoughData);
             return Response.ok(user).build();
         } catch (SQLException | IOException e) {
             e.printStackTrace();

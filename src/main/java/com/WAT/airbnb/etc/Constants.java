@@ -37,12 +37,11 @@ public class Constants {
     public static final int COUNTRY_OFFS = 2;
 
     public static final int PAGE_SIZE = 8;
-    public static final String PAGE_SIZE_STR = "8";
 
     public static final int STATUS_BAD_DATE_RANGE = 205;
     public static final int STATUS_DATE_OOB = 206;
     public static final int STATUS_DATE_BOOKED = 207;
 
-    public static final int STATUS_NOT_MODIFIED = 400;
-    public static final int STATUS_MODIFIED = 401;
+    public static final int K = 8;
+    public static final int MAX_NEIGHBOURS = 16;
 }

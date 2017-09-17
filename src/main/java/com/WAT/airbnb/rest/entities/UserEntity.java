@@ -12,6 +12,7 @@ public class UserEntity {
     private String picture;
     private String bio;
     private boolean approved;
+    private boolean enoughData;
 
     private String token;
 
@@ -94,4 +95,8 @@ public class UserEntity {
     public String getPicture() {
         return picture;
     }
+
+    public boolean getEnoughData() { return this.enoughData; }
+
+    public void setEnoughData(boolean enoughData) { this.enoughData = enoughData; }
 }
