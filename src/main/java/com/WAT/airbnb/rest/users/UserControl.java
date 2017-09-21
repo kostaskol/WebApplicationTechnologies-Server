@@ -9,27 +9,25 @@ import com.WAT.airbnb.util.XmlParser;
 import com.WAT.airbnb.util.blacklist.BlackList;
 import com.WAT.airbnb.util.helpers.ConnectionCloser;
 import com.WAT.airbnb.util.helpers.DateHelper;
-import com.WAT.airbnb.util.helpers.ScopeFiller;
+import com.WAT.airbnb.util.helpers.FileHelper;
 import com.google.gson.Gson;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.*;
 import java.util.Base64;
-import java.util.List;
 
 /**
  * Handles all user functionality
@@ -57,6 +55,7 @@ public class UserControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+
         try {
             Connection con = DataSource.getInstance().getConnection();
             String query = "insert into users (" +
@@ -158,15 +157,46 @@ public class UserControl {
                 }
             }
         }
+    }
 
+    @Path("/getuser/{userId}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUser(@PathParam("userId") int userId) {
+        Connection con = null;
+        PreparedStatement pSt = null;
+        ResultSet rs = null;
+        try {
+            con = DataSource.getInstance().getConnection();
+            String query = "SELECT email, firstName, lastName, country, bio, pictureURL FROM users WHERE userID = ? LIMIT 1";
+            pSt = con.prepareStatement(query);
+            pSt.setInt(1, userId);
+            rs = pSt.executeQuery();
+            UserEntity entity = new UserEntity();
+            if (rs.next()) {
+                entity.setFirstName(rs.getString("firstName"));
+                entity.setLastName(rs.getString("lastName"));
+                entity.setEmail(rs.getString("email"));
+                entity.setCountry(rs.getString("country"));
+                entity.setBio(rs.getString("bio"));
+                entity.setPicture(FileHelper.getFileAsString(rs.getString("pictureURL")));
+            }
+            Gson gson = new Gson();
+            return Response.ok(gson.toJson(entity)).build();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.closeAll(con, pSt, rs);
+        }
     }
 
     @Path("getuser")
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getUser(AuthenticationEntity authEnt) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(authEnt.getToken(), scopes);
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUser(String token) {
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
 
         try {
             auth.authenticate();
@@ -258,8 +288,7 @@ public class UserControl {
         System.out.println(json);
         Gson gson = new Gson();
         UserUpdateEntity entity = gson.fromJson(json, UserUpdateEntity.class);
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(entity.getToken(), scopes);
+        Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -288,9 +317,8 @@ public class UserControl {
     @Path("/verifytoken")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response verifyToke(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(token, scopes);
+    public Response verifyToken(String token) {
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -303,8 +331,7 @@ public class UserControl {
     public Response changeEmail(String json) {
         Gson gson = new Gson();
         ChangeMailEntity entity = gson.fromJson(json, ChangeMailEntity.class);
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(entity.getToken(), scopes);
+        Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -331,6 +358,37 @@ public class UserControl {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    @Path("/updateprofile")
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response updateProfile(@FormDataParam("file") InputStream uploadedInputStream,
+                                  @FormDataParam("file") FormDataContentDisposition fileDetails,
+                                  @FormDataParam("token") String token) {
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
+        if (!auth.authenticate()) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        int userId = auth.getId();
+        Connection con = null;
+        PreparedStatement pSt = null;
+        try {
+            String localUrl = FileHelper.saveFile(uploadedInputStream, userId, fileDetails, true);
+            con = DataSource.getInstance().getConnection();
+            String update = "UPDATE users SET pictureURL = ? WHERE userID = ?";
+            pSt = con.prepareStatement(update);
+            pSt.setString(1, localUrl);
+            pSt.setInt(2, userId);
+            pSt.execute();
+            return Response.ok().build();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.closeAll(con, pSt, null);
         }
     }
 

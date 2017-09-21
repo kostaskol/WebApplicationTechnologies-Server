@@ -36,13 +36,11 @@ public class HouseControl {
                                   @FormDataParam("data") String jsonString) {
         Gson gson = new Gson();
         HouseEntity entity = gson.fromJson(jsonString, HouseEntity.class);
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_RENTER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
-        entity.setRating(0f);
         entity.setNumRatings(0);
 
         try {
@@ -141,45 +139,6 @@ public class HouseControl {
 
     }
 
-    @Path("/showactive")
-    @GET
-    public Response showActive() {
-        try {
-            DataSource.getInstance().printCon();
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
-        }
-        return Response.ok().build();
-    }
-
-    @Path("/thumbtest")
-    @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response thumbTest(@FormDataParam("file") InputStream uploadedFileInputStream,
-                              @FormDataParam("file") FormDataContentDisposition fileDetails) {
-        try {
-            FileHelper.saveFile(uploadedFileInputStream, 0, fileDetails, false);
-            return Response.ok().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @Path("/thumbtestdown")
-    @GET
-    @Produces("image/jpeg")
-    public Response thumbTestDown() {
-        String localUrl = Constants.DIR + "/thumbnails/houses/0.jpg_thumb.jpg";
-        try {
-            String base64 = FileHelper.getFileAsString(localUrl);
-            return Response.ok(base64).build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
     @Path("/search")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -193,8 +152,8 @@ public class HouseControl {
         PreparedStatement pSt = null;
         try {
             con = DataSource.getInstance().getConnection();
-            boolean[] hasArgs = new boolean[12];
-            QueryBuilder queryBuilder = new QueryBuilder("SELECT houseID, city, country, rating, " +
+            boolean[] hasArgs = new boolean[11];
+            QueryBuilder queryBuilder = new QueryBuilder("SELECT houseID, city, country, " +
                     "numRatings, minCost FROM houses WHERE 1 = 1 ");
             if (entity.getCountry() != null) {
                 queryBuilder.and("country = ?");
@@ -250,40 +209,35 @@ public class HouseControl {
                 hasArgs[5] = true;
             } else
                 hasArgs[5] = false;
-            if (entity.getRating() != null) {
-                queryBuilder.and("rating >= ?");
-                hasArgs[6] = true;
-            } else
-                hasArgs[6] = false;
             if (entity.getDateFrom() != null && entity.getDateTo() != null) {
                 System.out.println("None is null");
                 queryBuilder.and("dateFrom <= ?").and("dateTo <= ?");
-                hasArgs[7] = true;
+                hasArgs[6] = true;
             } else if (entity.getDateFrom() != null) {
                 System.out.println("DateFrom is not null: " + entity.getDateFrom());
                 queryBuilder.and("dateFrom <= ?");
-                hasArgs[7] = false;
-                hasArgs[8] = true;
+                hasArgs[6] = false;
+                hasArgs[7] = true;
             } else if (entity.getDateTo() != null) {
                 queryBuilder.and("dateTo <= ?").and("dateFrom <= NOW()");
+                hasArgs[6] = false;
                 hasArgs[7] = false;
-                hasArgs[8] = false;
-                hasArgs[9] = true;
+                hasArgs[8] = true;
             } else {
+                hasArgs[6] = false;
                 hasArgs[7] = false;
                 hasArgs[8] = false;
-                hasArgs[9] = false;
             }
             if (entity.getMinCost() != null) {
                 queryBuilder.and("minCost >= ?");
+                hasArgs[9] = true;
+            } else
+                hasArgs[9] = false;
+            if (entity.getCostPerPerson() != null) {
+                queryBuilder.and("costPerPerson >= ?");
                 hasArgs[10] = true;
             } else
                 hasArgs[10] = false;
-            if (entity.getCostPerPerson() != null) {
-                queryBuilder.and("costPerPerson >= ?");
-                hasArgs[11] = true;
-            } else
-                hasArgs[11] = false;
 
             pSt = con.prepareStatement(queryBuilder.toString());
             int curr = 1;
@@ -306,31 +260,28 @@ public class HouseControl {
                 pSt.setInt(curr++, entity.getMinDays());
             }
             if (hasArgs[6]) {
-                pSt.setFloat(curr++, entity.getRating());
-            }
-            if (hasArgs[7]) {
                 try {
                     pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateFrom()));
                     pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateTo()));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            } else if (hasArgs[7]) {
+                try {
+                    pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateFrom()));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             } else if (hasArgs[8]) {
                 try {
-                    pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateFrom()));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } else if (hasArgs[9]) {
-                try {
                     pSt.setDate(curr++, DateHelper.stringToDate(entity.getDateTo()));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
-            if (hasArgs[10])
+            if (hasArgs[9])
                 pSt.setFloat(curr++, entity.getMinCost());
-            if (hasArgs[11])
+            if (hasArgs[10])
                 pSt.setFloat(curr, entity.getCostPerPerson());
 
 
@@ -344,7 +295,6 @@ public class HouseControl {
                 minEntity.setHouseId(rs.getInt("houseId"));
                 minEntity.setCity(rs.getString("city"));
                 minEntity.setCountry(rs.getString("country"));
-                minEntity.setRating(rs.getFloat("rating"));
                 minEntity.setNumRatings(rs.getInt("numRatings"));
                 minEntity.setMinCost(rs.getInt("minCost"));
 
@@ -384,29 +334,7 @@ public class HouseControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (pSt != null) {
-                try {
-                    pSt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
     }
 
@@ -445,22 +373,20 @@ public class HouseControl {
         Connection con = null;
         ResultSet rs = null;
         PreparedStatement pSt = null;
-        ArrayList<House> entities = new ArrayList<>();
+        ArrayList<HouseMinEntity> entities = new ArrayList<>();
         try {
 
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses " +
+            String query = "SELECT houseID, city, country, numRatings, minCost FROM houses " +
                     "WHERE dateTo > NOW() ORDER BY minCost ASC LIMIT ?, ?";
             pSt = con.prepareStatement(query);
             pSt.setInt(1, pageNum * Constants.PAGE_SIZE);
             pSt.setInt(2, Constants.PAGE_SIZE);
             rs = pSt.executeQuery();
-            HousePageBundle bundle = new HousePageBundle();
             while (rs.next()) {
                 HouseMinEntity entity = new HouseMinEntity();
                 entity.setCity(rs.getString("city"));
                 entity.setCountry(rs.getString("country"));
-                entity.setRating(rs.getFloat("rating"));
                 entity.setNumRatings(rs.getInt("numRatings"));
                 entity.setMinCost(rs.getFloat("minCost"));
                 entity.setHouseId(rs.getInt("houseID"));
@@ -489,12 +415,8 @@ public class HouseControl {
 
             }
 
-            bundle.setHouses(entities);
-            bundle.setNumPages(entities.size() / Constants.PAGE_SIZE + 1);
-
             Gson gson = new Gson();
-            String response = gson.toJson(bundle);
-            System.gc();
+            String response = gson.toJson(entities);
             return Response.ok(response).build();
         } catch (IOException | SQLException e) {
             e.printStackTrace();
@@ -509,128 +431,78 @@ public class HouseControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPredicted(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
+        int currentUser = auth.getId();
         long start = System.currentTimeMillis();
         Connection con = null;
         Statement st = null;
-        PreparedStatement pSt = null;
         ResultSet rs = null;
-        int currentUser = auth.getId();
         try {
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT COUNT(*) AS c FROM comments WHERE userID = ?";
-            pSt = con.prepareStatement(query);
-            pSt.setInt(1, currentUser);
-            rs = pSt.executeQuery();
-
             st = con.createStatement();
-            boolean[] vector;
-            int all;
+
+            // Create a user and house map
+            // (houseID => matrix index)
+            String query = "SELECT DISTINCT(houseID) from comments";
+            rs = st.executeQuery(query);
+
+
+            HashMap<Integer, Integer> houseMap = new HashMap<>();
+            HashMap<Integer, Integer> reverseHouseMap = new HashMap<>();
+            int houseCount;
+            for (houseCount = 0; rs.next(); houseCount++) {
+                houseMap.put(rs.getInt("houseID"), houseCount);
+                reverseHouseMap.put(houseCount, rs.getInt("houseID"));
+            }
+
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            query = "SELECT DISTINCT(userID) FROM comments";
+            rs = st.executeQuery(query);
+            HashMap<Integer, Integer> userMap = new HashMap<>();
+            HashMap<Integer, Integer> reverseUserMap = new HashMap<>();
+            int userCount;
+            for (userCount = 0; rs.next(); userCount++) {
+                userMap.put(rs.getInt("userID"), userCount);
+                reverseUserMap.put(userCount, rs.getInt("userID"));
+            }
+
+
+
+            query = "SELECT COUNT(*) AS c FROM comments WHERE userID = " + currentUser;
+            rs = st.executeQuery(query);
             if (rs.next()) {
-                if (rs.getInt("c") > 10) {
+                int count = rs.getInt("c");
+                if (count > 10) {
                     // get normally
-                    query = "SELECT COUNT(DISTINCT(userID)) AS c from comments";
-                    try {
-                        rs.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
 
-                    rs = st.executeQuery(query);
-                    int userCount = 0;
-                    if (rs.next()) {
-                        userCount = rs.getInt("c");
-                    }
-
-                    query = "SELECT COUNT(DISTINCT(houseID)) AS c from comments";
-                    try {
-                        rs.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-
-                    rs = st.executeQuery(query);
-                    int houseCount = 0;
-                    if (rs.next()) {
-                        houseCount = rs.getInt("c");
-                    }
-
-                    try {
-                        rs.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-
-                    // Create a user and house map
-                    // (houseID => matrix index)
-                    query = "SELECT DISTINCT(houseID) from comments";
-                    rs = st.executeQuery(query);
-                    boolean[][] matrix = new boolean[userCount][houseCount];
+                    boolean[][] userHouseMatrix = new boolean[userCount][houseCount];
                     for (int i = 0; i < userCount; i++) {
                         for (int j = 0; j < houseCount; j++) {
-                            matrix[i][j] = false;
+                            userHouseMatrix[i][j] = false;
                         }
                     }
 
-                    HashMap<Integer, Integer> houseMap = new HashMap<>();
-                    HashMap<Integer, Integer> reverseHouseMap = new HashMap<>();
-                    for (int i = 0; rs.next(); i++) {
-                        houseMap.put(rs.getInt("houseID"), i);
-                        reverseHouseMap.put(i, rs.getInt("houseID"));
-                    }
-
-                    try {
-                        rs.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-
-                    query = "SELECT DISTINCT(userID) FROM comments";
+                    query = "SELECT houseID, userID, rating FROM comments";
                     rs = st.executeQuery(query);
-                    HashMap<Integer, Integer> userMap = new HashMap<>();
-                    for (int i = 0; rs.next(); i++) {
-                        userMap.put(rs.getInt("userID"), i);
-                    }
-
-                    query = "SELECT houseID, userID, rating FROM comments``";
-                    rs = st.executeQuery(query);
-                    int currentUserIndex = 0;
                     while (rs.next()) {
                         float rating = rs.getFloat("rating");
-                        if (rating > 0.5) {
-                            matrix[userMap.get(rs.getInt("userID"))][houseMap.get(rs.getInt("houseID"))] = true;
+                        if (rating >= 0.5) {
+                            userHouseMatrix[userMap.get(rs.getInt("userID"))]
+                                    [houseMap.get(rs.getInt("houseID"))] = true;
                         }
                     }
 
-                    currentUserIndex = userMap.get(currentUser);
 
-
-                    int stages = 2;
-                    int buckets = 4800;
-                    LSHMinHash lsh = new LSHMinHash(stages, buckets, houseCount);
-
-                    int k = 0;
-                    ArrayList<Integer> otherUsers = new ArrayList<>();
-                    int[] hash = lsh.hash(matrix[currentUserIndex]);
-                    int currentUserBucket = hash[0];
-
-                    // We only care about the users that got into the same bucket
-                    // that the current user did. Thus, there is no need to keep hold of the buckets
-                    for (int i = 0; i < matrix.length; i++) {
-                        if (i == currentUserIndex) continue;
-                        boolean[] tmpVector = matrix[i];
-
-                        hash = lsh.hash(tmpVector);
-
-                        if (hash[0] == currentUserBucket) {
-                            otherUsers.add(userMap.get(i));
-                        }
-                    }
+                    ArrayList<Integer> otherUsers = getBucket(currentUser, houseCount, userHouseMatrix, userMap, false);
 
                     QueryBuilder qBuilder = new QueryBuilder("SELECT userID, houseID, rating FROM comments " +
                             "WHERE userID = " + currentUser + " ");
@@ -654,9 +526,6 @@ public class HouseControl {
                     ArrayList<Integer> ids = new ArrayList<>();
 
                     while (rs.next()) {
-//                        if (!houseMap.containsKey(rs.getInt("houseID"))) {
-//                            houseMap.put(rs.getInt("houseID"), i++);
-//                        }
                         HashMap<Integer, Double> tmp;
                         if (ratingsMap.containsKey(rs.getInt("userID"))) {
                             tmp = ratingsMap.get(rs.getInt("userID"));
@@ -665,8 +534,6 @@ public class HouseControl {
                         }
                         tmp.put(rs.getInt("houseID"), rs.getDouble("rating"));
                         ratingsMap.put(rs.getInt("userID"), tmp);
-//                        System.out.println("Adding id " + rs.getInt("userID") + " to map");
-//                        System.out.println("Adding to map " + ratingsMap.size());
                     }
 
 
@@ -733,7 +600,7 @@ public class HouseControl {
                         rCon = DataSource.getInstance().getConnection();
                         ArrayList<HouseMinEntity> entities = new ArrayList<>();
                         for (i = 0; i < Constants.K; i++) {
-                            query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses WHERE" +
+                            query = "SELECT houseID, city, country, numRatings, minCost FROM houses WHERE" +
                                     " houseID = ?";
                             rSt = rCon.prepareStatement(query);
                             rSt.setInt(1, predicted.get(i).left);
@@ -743,7 +610,6 @@ public class HouseControl {
                                 entity.setHouseId(rRs.getInt("houseID"));
                                 entity.setCity(rRs.getString("city"));
                                 entity.setCountry(rRs.getString("country"));
-                                entity.setRating(rRs.getFloat("rating"));
                                 entity.setNumRatings(rRs.getInt("numRatings"));
                                 entity.setMinCost(rRs.getFloat("minCost"));
 
@@ -770,13 +636,156 @@ public class HouseControl {
                     } finally {
                         ConnectionCloser.closeAll(rCon, rSt, rRs);
                     }
-//
-                } else {
-                    // Get from searches
+                } else if (count > 3){
+                    query = "SELECT houseID FROM searches WHERE userID = " + currentUser;
+                    ResultSet tmpRs = st.executeQuery(query);
 
+                    try {
+                        rs.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    boolean[][] userHouseMatrix = new boolean[userCount][houseCount];
+                    for (int i = 0; i < userCount; i++)
+                        for (int j = 0; j < houseCount; j++)
+                            userHouseMatrix[i][j] = false;
+
+                    query = "SELECT houseID, userID, rating FROM comments";
+                    rs = st.executeQuery(query);
+                    int currentUserIndex;
+                    while (rs.next())
+                        if (rs.getDouble("rating") >= 0.5)
+                            userHouseMatrix
+                                    [userMap.get(rs.getInt("userID"))]
+                                    [houseMap.get(rs.getInt("houseID"))] = true;
+
+                    int index;
+                    if (count == 0)
+                        index = userCount - 1;
+                    else
+                        index = userMap.get(currentUser);
+
+                    while (rs.next())
+                        userHouseMatrix[index][houseMap.get(rs.getInt("houseID"))] = true;
+
+                    try {
+                        rs.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                    ArrayList<Integer> otherUsers = getBucket(currentUser, houseCount, userHouseMatrix, reverseUserMap, true);
+
+                    MyVector[] userMatrix = new MyVector[otherUsers.size() + 1];
+
+                    userMatrix[0] = new MyVector(userHouseMatrix[userCount - 1], currentUser);
+                    System.out.println("Other users' size = " + otherUsers.size());
+                    for (int i = 1; i < otherUsers.size() + 1; i++) {
+                        userMatrix[i] =
+                                new MyVector(userHouseMatrix[userMap.get(otherUsers.get(i - 1))], otherUsers.get(i - 1));
+                    }
+
+
+                    Map<Integer, Double> distanceMatrix = new HashMap<>();
+                    System.out.println("userMatrix length = " + userMatrix.length);
+                    for (int i = 0; i < userMatrix.length; i++) {
+                        if (userMatrix[i] == null) {
+                            System.out.println("UserMatrix @ index " + i + " is null");
+                        }
+                    }
+                    for (int i = 1; i < userMatrix.length; i++) {
+                        double distance = userMatrix[0].cosineSim(userMatrix[i], 1);
+                        distanceMatrix.put(i - 1, distance);
+                    }
+
+
+                    Set<Map.Entry<Integer, Double>> entries = distanceMatrix.entrySet();
+                    List<Map.Entry<Integer, Double>> entryList =
+                            new ArrayList<>(entries);
+
+                    Comparator<Map.Entry<Integer, Double>> comp =
+                            new Comparator<Map.Entry<Integer, Double>>() {
+                                @Override
+                                public int compare(Map.Entry<Integer, Double> e1,
+                                                   Map.Entry<Integer, Double> e2) {
+                                    if (e1.getValue() > e2.getValue()) {
+                                        return -1;
+                                    } else if (e1.getValue() < e2.getValue()) {
+                                        return 1;
+                                    }
+                                    return 0;
+                                }
+                            };
+
+                    entryList.sort(comp);
+
+                    ArrayList<Tuple<Integer, Boolean>> predicted = new ArrayList<>();
+
+                    for (int i = 0; i < (Constants.MAX_NEIGHBOURS > userMatrix.length ?
+                            userMatrix.length : Constants.MAX_NEIGHBOURS); i++) {
+                        MyVector tmpVector = userMatrix[entryList.get(i).getKey()];
+                        if (tmpVector == null) {
+                            System.out.println("tmpVector is null");
+                        }
+                        for (int j = 0; j < userMatrix[0].size(); j++) {
+                            if (userMatrix[0].get(j, 0) == null) {
+                                System.out.println("NULL");
+                            }
+                            if (!userMatrix[0].get(j, 0) && tmpVector.get(j, 0)
+                                    && !predicted.contains(
+                                    new Tuple<Integer, Boolean>(reverseHouseMap.get(j), null))) {
+                                predicted.add(new Tuple<Integer, Boolean>(reverseHouseMap.get(j), tmpVector.get(j, 0)));
+                            }
+                        }
+                    }
+
+                    Connection rCon = null;
+                    PreparedStatement rSt = null;
+                    ResultSet rRs = null;
+                    try {
+                        rCon = DataSource.getInstance().getConnection();
+                        ArrayList<HouseMinEntity> entities = new ArrayList<>();
+                        for (int i = 0; i < Constants.K; i++) {
+                            query = "SELECT houseID, city, country, numRatings, minCost FROM houses WHERE" +
+                                    " houseID = ?";
+                            rSt = rCon.prepareStatement(query);
+                            rSt.setInt(1, predicted.get(i).left);
+                            rRs = rSt.executeQuery();
+                            while (rRs.next()) {
+                                HouseMinEntity entity = new HouseMinEntity();
+                                entity.setHouseId(rRs.getInt("houseID"));
+                                entity.setCity(rRs.getString("city"));
+                                entity.setCountry(rRs.getString("country"));
+                                entity.setNumRatings(rRs.getInt("numRatings"));
+                                entity.setMinCost(rRs.getFloat("minCost"));
+
+                                query = "SELECT thumbURL FROM airbnb_t.photographs " +
+                                        "WHERE houseID = " + rRs.getInt("houseID") + " LIMIT 1";
+                                rSt = rCon.prepareStatement(query);
+                                tmpRs = rSt.executeQuery();
+                                if (tmpRs.next()) {
+                                    entity.setPicture(FileHelper.getFileAsString(tmpRs.getString("thumbURL")));
+                                }
+
+                                entities.add(entity);
+                            }
+
+                            ConnectionCloser.closeAll(null, rSt, rRs);
+                        }
+
+                        Gson gson = new Gson();
+                        String response = gson.toJson(entities);
+                        return Response.ok(response).build();
+                    } catch (SQLException | IOException e) {
+                        e.printStackTrace();
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                    } finally {
+                        ConnectionCloser.closeAll(rCon, rSt, rRs);
+                    }
+                } else {
+                    return Response.ok("{\"status\": " + Constants.NOT_ENOUGH_DATA + "}").build();
                 }
             }
-            System.out.println("Finished in " + (System.currentTimeMillis() - start) + " millis");
 
             return Response.ok().build();
         } catch (Exception e) {
@@ -784,15 +793,45 @@ public class HouseControl {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             ConnectionCloser.closeAll(con, st, rs);
-            if (pSt != null) {
-                try {
-                    pSt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
+
+
+    private ArrayList<Integer> getBucket(int currentUser, int houseCount, boolean[][] userHouseMatrix,
+                                         HashMap<Integer, Integer> userMap, boolean sparse) {
+        int currentUserIndex = userMap.get(currentUser);
+
+        int stages = 2;
+        int buckets;
+        if (sparse) {
+            buckets = 500;
+        } else {
+            buckets = 4700;
+        }
+        LSHMinHash lsh = new LSHMinHash(stages, buckets, houseCount);
+
+        int k = 0;
+        ArrayList<Integer> otherUsers = new ArrayList<>();
+        int[] hash = lsh.hash(userHouseMatrix[currentUserIndex]);
+        int currentUserBucket = hash[0];
+
+        // We only care about the users that got into the same bucket
+        // that the current user did. Thus, there is no need to keep hold of all the buckets
+        ArrayList<Integer> hashes = new ArrayList<>();
+        for (int i = 0; i < userHouseMatrix.length; i++) {
+            if (i == currentUserIndex) continue;
+            boolean[] tmpVector = userHouseMatrix[i];
+
+            hash = lsh.hash(tmpVector);
+
+            if (hash[0] == currentUserBucket) {
+                otherUsers.add(userMap.get(i));
+            }
+        }
+
+        return otherUsers;
+    }
+
 
     private void fixIndices(MyVector vector, HashMap<Integer, Integer> houseMap,
                             HashMap<Integer, Double> currentUserMap) {
@@ -805,30 +844,12 @@ public class HouseControl {
         }
     }
 
-    @Path("/test")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response test(@QueryParam("lat") float lat, @QueryParam("lng") float lng) {
-        try {
-            System.out.println("Called");
-            String[] s = ReverseGeocoder.convert(lat, lng);
-            for (String str : s) {
-                System.out.println(str);
-            }
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(s)).build();
-        } catch (IOException e) {
-            return Response.ok("{ 'err': 500 }").build();
-        }
-    }
-
     @Path("/getusershousesmin")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersHousesMin(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_RENTER);
 
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -841,13 +862,17 @@ public class HouseControl {
         PreparedStatement pSt = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses WHERE ownerID = ?";
+            String query = "SELECT houseID, city, country, numRatings, minCost FROM houses WHERE ownerID = ?";
             pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
             rs = pSt.executeQuery();
-            HousePageBundle bundle = HouseGetter.getHouseMinList(rs);
+            System.out.println("Executing query");
+            ArrayList<HouseMinEntity> entities = HouseGetter.getHouseMinList(rs);
+            System.out.println("Got results");
             Gson gson = new Gson();
-            String jsonString = gson.toJson(bundle);
+
+            String jsonString = gson.toJson(entities);
+            System.out.println("Returning: " + jsonString);
             return Response.ok(jsonString).build();
         } catch (IOException | SQLException e) {
             e.printStackTrace();
@@ -858,15 +883,13 @@ public class HouseControl {
     }
 
 
-    // TODO: UNTESTED
     @Path("/gethouse/{houseId}")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHousePost(@PathParam("houseId") int houseId,
                                  String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -899,11 +922,11 @@ public class HouseControl {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHouse(@PathParam("houseid") int houseId) {
        Connection con = null,
-               picCon = null;
+               con2 = null;
        ResultSet rs = null,
-               picRs = null;
+               rs2 = null;
        try {
-           // An list of all the start - end date pairs that are already booked
+           // A list of all the start - end date pairs that are already booked
            ArrayList<Date[]> dateList = new ArrayList<>();
            Connection bookCon = null;
            ResultSet bookRs = null;
@@ -923,21 +946,7 @@ public class HouseControl {
                e.printStackTrace();
                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
            } finally {
-               if (bookCon != null) {
-                   try {
-                       bookCon.close();
-                   } catch (SQLException e) {
-                       e.printStackTrace();
-                   }
-               }
-
-               if (bookRs != null) {
-                   try {
-                       bookRs.close();
-                   } catch (SQLException e) {
-                       e.printStackTrace();
-                   }
-               }
+               ConnectionCloser.closeAll(bookCon, null, bookRs);
            }
 
            con = DataSource.getInstance().getConnection();
@@ -969,12 +978,12 @@ public class HouseControl {
                house.setTv(rs.getBoolean("tv"));
                house.setParking(rs.getBoolean("parking"));
                house.setElevator(rs.getBoolean("elevator"));
+               house.setNumRatings(rs.getInt("numRatings"));
+
                house.setArea(rs.getFloat("area"));
                house.setDescription(rs.getString("description"));
                house.setMinDays(rs.getInt("minDays"));
                house.setInstructions(rs.getString("instructions"));
-               house.setRating(rs.getFloat("rating"));
-               house.setNumRatings(rs.getInt("numRatings"));
                house.setDateFrom(DateHelper.dateToString(rs.getDate("dateFrom")));
                house.setDateTo(DateHelper.dateToString(rs.getDate("dateTo")));
                house.setMinCost(rs.getFloat("minCost"));
@@ -993,32 +1002,18 @@ public class HouseControl {
 
                house.setExcludedDates(excludedDates);
 
-               picCon = DataSource.getInstance().getConnection();
+               con2 = DataSource.getInstance().getConnection();
 
                query = "SELECT pictureURL FROM photographs WHERE houseID = ?";
 
-               pSt = picCon.prepareStatement(query);
+               pSt = con2.prepareStatement(query);
                pSt.setInt(1, houseId);
-               picRs = pSt.executeQuery();
-               while (picRs.next()) {
-                   house.addPicture(FileHelper.getFileAsString(picRs.getString("pictureURL")));
+               rs2 = pSt.executeQuery();
+               while (rs2.next()) {
+                   house.addPicture(FileHelper.getFileAsString(rs2.getString("pictureURL")));
                }
 
-               try {
-                   picCon.close();
-               } catch (SQLException e) {
-                   e.printStackTrace();
-               }
-
-               picCon = null;
-
-               try {
-                   picRs.close();
-               } catch (SQLException e) {
-                   e.printStackTrace();
-               }
-
-               picRs = null;
+               ConnectionCloser.closeAll(con2, pSt, rs2);
 
                try (Connection userCon = DataSource.getInstance().getConnection()) {
                    query = "SELECT firstName, lastName from users WHERE userID = ? LIMIT 1";
@@ -1042,37 +1037,7 @@ public class HouseControl {
            e.printStackTrace();
            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
        } finally {
-           if (con != null) {
-               try {
-                   con.close();
-               } catch(SQLException e) {
-                   e.printStackTrace();
-               }
-           }
-
-           if (rs != null) {
-               try {
-                   rs.close();
-               } catch (SQLException e) {
-                   e.printStackTrace();
-               }
-           }
-
-           if (picCon != null) {
-               try {
-                   picCon.close();
-               } catch (SQLException e) {
-                   e.printStackTrace();
-               }
-           }
-
-           if (picRs != null) {
-               try {
-                   picRs.close();
-               } catch (SQLException e) {
-                   e.printStackTrace();
-               }
-           }
+           ConnectionCloser.closeAll(con, null, rs);
        }
     }
 
@@ -1083,8 +1048,7 @@ public class HouseControl {
                                 String json) {
         Gson gson = new Gson();
         HouseUpdateEntity entity = gson.fromJson(json, HouseUpdateEntity.class);
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
-        Authenticator auth = new Authenticator(entity.getToken(), scopes);
+        Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_RENTER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -1100,7 +1064,7 @@ public class HouseControl {
                     "accommodates = ?, hasLivingRoom = ?, smokingAllowed = ?, petsAllowed = ?, eventsAllowed = ?, " +
                     "wifi = ?, airconditioning = ?, heating = ?, kitchen = ?, tv = ?, parking = ?, elevator = ?, " +
                     "area = ?, description = ?, instructions = ?, minDays = ?, " +
-                    "dateFrom = ?, dateTo = ?, minCost = ?, costPerPerson = ?, costPerDay = ?, lastUpdated = NOW() WHERE houseID = ?";
+                    "dateFrom = ?, dateTo = ?, minCost = ?, costPerPerson = ?, costPerDay = ? WHERE houseID = ?";
             pSt = con.prepareStatement(update);
             pSt.setFloat(1, he.getLatitude());
             pSt.setFloat(2, he.getLongitude());
@@ -1150,8 +1114,7 @@ public class HouseControl {
                                   @FormDataParam("token") String token,
                                   @PathParam("houseId") int houseID) {
 
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_RENTER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }

@@ -4,10 +4,10 @@ public class HouseMinEntity extends House {
     private int houseId;
     private String city;
     private String country;
-    private float rating;
     private int numRatings;
     private float minCost;
     private String picture;
+    private boolean allowedToComment;
 
     public HouseMinEntity() {}
 
@@ -18,11 +18,11 @@ public class HouseMinEntity extends House {
 
     public String getPicture() { return this.picture; }
 
-    public float getRating() { return this.rating; }
-
     public int getNumRatings() { return this.numRatings; }
 
     public float getMinCost() { return this.minCost; }
+
+    public boolean getAllowedToComment() { return this.allowedToComment; }
 
     public void setHouseId(int houseId) { this.houseId = houseId; }
 
@@ -32,9 +32,9 @@ public class HouseMinEntity extends House {
 
     public void setPicture(String picture) { this.picture = picture; }
 
-    public void setRating(float rating) { this.rating = rating; }
-
     public void setNumRatings(int num) { this.numRatings = num; }
 
     public void setMinCost(float minCost) { this.minCost = minCost; }
+
+    public void setAllowedToComment(boolean allowedToComment) { this.allowedToComment = allowedToComment; }
 }

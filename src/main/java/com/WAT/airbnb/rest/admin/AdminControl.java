@@ -76,8 +76,7 @@ public class AdminControl {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public Response verifyToken(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
         System.out.println("Token = " + token);
         try {
             auth.authenticate();
@@ -92,8 +91,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApprove(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
         try {
             auth.authenticate();
         } catch (Exception e) {
@@ -157,8 +155,7 @@ public class AdminControl {
                               String json) {
         Gson gson = new Gson();
         UserEntity entity = gson.fromJson(json, UserEntity.class);
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
-        Authenticator auth = new Authenticator(entity.getToken(), scopes);
+        Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_ADMIN);
         try {
             auth.authenticate();
         } catch (Exception e) {
@@ -199,8 +196,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response approve(@PathParam(value="userId") int userId,
                             String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
         try {
             auth.authenticate();
         } catch (Exception e) {
@@ -234,8 +230,7 @@ public class AdminControl {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam(value="userId") int userId,
                             String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
         try {
             auth.authenticate();
         } catch (Exception e) {
@@ -306,8 +301,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApprovalList(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
         try {
             auth.authenticate();
         } catch (Exception e) {
@@ -389,8 +383,7 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
     public Response exportRaw(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_ADMIN);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
         try {
             auth.authenticate();
         } catch (Exception e) {

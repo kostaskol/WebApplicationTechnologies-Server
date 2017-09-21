@@ -6,6 +6,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+/**
+ *  Static class that converts java.lang.String objects to java.sql.Date objects
+ *  and vice versa
+ */
 public class DateHelper {
     static public java.sql.Date stringToDate(String strDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);

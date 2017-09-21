@@ -42,6 +42,7 @@ public class Constants {
     public static final int STATUS_DATE_OOB = 206;
     public static final int STATUS_DATE_BOOKED = 207;
 
-    public static final int K = 8;
+    public static final int K = 4;
     public static final int MAX_NEIGHBOURS = 16;
+    public static final int NOT_ENOUGH_DATA = 255;
 }

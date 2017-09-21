@@ -5,6 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ *  Simple static class that closes Connection, Statement and ResultSet objects
+ */
 public class ConnectionCloser {
     public static void closeAll(Connection con, Statement statement, ResultSet rs) {
         if (con != null) {

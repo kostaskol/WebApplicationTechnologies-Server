@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Authenticator {
@@ -13,9 +14,23 @@ public class Authenticator {
     private Integer id;
     private List<String> type;
 
-    public Authenticator(String token, List<String> accType) {
+    public Authenticator(String token, int type) {
         this.token = token;
-        this.type = accType;
+        this.type = new ArrayList<String>();
+        switch (type) {
+            case Constants.TYPE_USER:
+                this.type.add(Constants.SCOPE_ADMINS);
+                this.type.add(Constants.SCOPE_RENTERS);
+                this.type.add(Constants.SCOPE_USERS);
+                break;
+            case Constants.TYPE_RENTER:
+                this.type.add(Constants.SCOPE_ADMINS);
+                this.type.add(Constants.SCOPE_RENTERS);
+                break;
+            case Constants.TYPE_ADMIN:
+                this.type.add(Constants.SCOPE_ADMINS);
+                break;
+        }
         id = null;
     }
 

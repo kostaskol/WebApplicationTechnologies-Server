@@ -27,8 +27,7 @@ public class BookingControl {
     public Response newBooking(String json) {
         Gson gson = new Gson();
         BookingEntity entity = gson.fromJson(json, BookingEntity.class);
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(entity.getToken(), scopes);
+        Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_USER);
 
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -69,8 +68,7 @@ public class BookingControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRentersBookings(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_RENTER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_RENTER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -84,7 +82,7 @@ public class BookingControl {
             String query = "SELECT " +
                     "users.userID, users.firstName, users.lastName, " + // From users
 
-                    "houses.houseID, houses.city, houses.country, houses.rating, houses.numRatings, houses.minCost, " + // From houses
+                    "houses.houseID, houses.city, houses.country, houses.numRatings, houses.minCost, " + // From houses
 
                     "photographs.pictureURL, " +
 
@@ -105,7 +103,6 @@ public class BookingControl {
                 minEntity.setHouseId(rs.getInt("houseID"));
                 minEntity.setCity(rs.getString("city"));
                 minEntity.setCountry(rs.getString("country"));
-                minEntity.setRating(rs.getFloat("rating"));
                 minEntity.setNumRatings(rs.getInt("numRatings"));
                 minEntity.setMinCost(rs.getFloat("minCost"));
                 minEntity.setPicture(FileHelper.getFileAsString(rs.getString("pictureURL")));
@@ -135,8 +132,7 @@ public class BookingControl {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersBookings(String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -172,13 +168,13 @@ public class BookingControl {
         for (Integer houseId : houseMap.keySet()) {
             try {
                 con = DataSource.getInstance().getConnection();
-                String query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses WHERE houseID = ?";
+                String query = "SELECT houseID, city, country, numRatings, minCost FROM houses WHERE houseID = ?";
                 pSt = con.prepareStatement(query);
                 pSt.setInt(1, houseId);
                 rs = pSt.executeQuery();
-                HousePageBundle entityBundle = HouseGetter.getHouseMinList(rs);
+                ArrayList<HouseMinEntity> houseEntities = HouseGetter.getHouseMinList(rs);
                 BookedHouseEntity entity = new BookedHouseEntity();
-                for (House minEntity : entityBundle.getHouses()) {
+                for (House minEntity : houseEntities) {
                     HouseMinEntity houseMinEntity = (HouseMinEntity) minEntity;
                     String[] dates = houseMap.get(houseId);
                     entity.setHouse(houseMinEntity);
@@ -205,8 +201,7 @@ public class BookingControl {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response deleteBooking(@PathParam("bookingId") int bookingId,
                                   String token) {
-        List<String> scopes = ScopeFiller.fillScope(Constants.TYPE_USER);
-        Authenticator auth = new Authenticator(token, scopes);
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
 
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();

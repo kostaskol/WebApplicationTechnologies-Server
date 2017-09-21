@@ -28,7 +28,6 @@ public class HouseEntity extends House {
     private String description;
     private Integer minDays;
     private String instructions;
-    private Float rating;
     private Integer numRatings;
     private String dateFrom;
     private String dateTo;
@@ -158,10 +157,6 @@ public class HouseEntity extends House {
         this.instructions = instructions;
     }
 
-    public void setRating(float rating) {
-        this.rating = rating;
-    }
-
     public void setNumRatings(int numRatings) {
         this.numRatings = numRatings;
     }
@@ -250,10 +245,6 @@ public class HouseEntity extends House {
 
     public String getInstructions() {
         return instructions;
-    }
-
-    public Float getRating() {
-        return rating;
     }
 
     public Integer getNumRatings() {

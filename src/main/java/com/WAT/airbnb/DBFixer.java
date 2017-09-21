@@ -359,7 +359,7 @@ public class DBFixer {
     @GET
     public Response populateSearch() {
         ArrayList<Integer> houseIds = getHouses();
-        int user = 597;
+        int user = 33;
         Connection con = null;
         PreparedStatement pSt = null;
         try {
@@ -411,6 +411,51 @@ public class DBFixer {
         return DateHelper.stringToDate(randomDate.getYear() + "-" +
                 randomDate.getMonthValue() + "-" +
                 randomDate.getDayOfMonth());
+    }
+
+    @Path("/fixratings")
+    @GET
+    public Response fixRatings() {
+        Connection con = null;
+        PreparedStatement pSt = null;
+        ResultSet rs = null;
+        try {
+            con = DataSource.getInstance().getConnection();
+            String query = "SELECT DISTINCT(houseID), COUNT(houseID) AS c FROM comments GROUP BY houseID";
+            Statement st = con.createStatement();
+            rs = st.executeQuery(query);
+            HashMap<Integer, Integer> idCountMap = new HashMap<>();
+            while (rs.next()) {
+                idCountMap.put(rs.getInt("houseID"), rs.getInt("c"));
+            }
+
+            try {
+                st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+
+            query = "UPDATE houses SET numRatings = ? WHERE houseID = ?";
+            pSt = con.prepareStatement(query);
+            con.setAutoCommit(false);
+            for (Integer id : idCountMap.keySet()) {
+                pSt.setInt(1, idCountMap.get(id));
+                pSt.setInt(2, id);
+                pSt.addBatch();
+                System.out.println("Setting id " + id + " to " + idCountMap.get(id));
+            }
+
+
+            pSt.executeBatch();
+            con.commit();
+            return Response.ok().build();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.closeAll(con, pSt, rs);
+        }
     }
 
     @Path("/populatenames")

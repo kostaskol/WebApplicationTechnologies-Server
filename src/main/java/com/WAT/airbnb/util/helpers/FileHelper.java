@@ -10,6 +10,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.Base64;
 
+/**
+ *  1. Saves the given file objects to the filesystem
+ *  2. Converts saved images to base64
+ */
 public class FileHelper {
     static public String saveFile(InputStream uploadedInputStream, int id,
                                   FormDataContentDisposition fileDetails,
