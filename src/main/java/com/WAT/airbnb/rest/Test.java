@@ -2,7 +2,7 @@
 //
 //import com.WAT.airbnb.db.DataSource;
 //import com.WAT.airbnb.etc.Constants;
-//import com.WAT.airbnb.rest.entities.HouseMinEntity;
+//import com.WAT.airbnb.rest.entities.HouseMinBean;
 //import com.WAT.airbnb.util.DateRange;
 //import com.WAT.airbnb.util.MyVector;
 //import com.WAT.airbnb.util.QueryBuilder;
@@ -354,7 +354,7 @@
 //                    ResultSet rRs = null;
 //                    try {
 //                        rCon = DataSource.getInstance().getConnection();
-//                        ArrayList<HouseMinEntity> entities = new ArrayList<>();
+//                        ArrayList<HouseMinBean> entities = new ArrayList<>();
 //                        for (i = 0; i < Constants.K; i++) {
 //                            query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses WHERE" +
 //                                    " houseID = ?";
@@ -362,7 +362,7 @@
 //                            rSt.setInt(1, predicted.get(i).left);
 //                            rRs = rSt.executeQuery();
 //                            while (rRs.next()) {
-//                                HouseMinEntity entity = new HouseMinEntity();
+//                                HouseMinBean entity = new HouseMinBean();
 //                                entity.setHouseId(rRs.getInt("houseID"));
 //                                entity.setCity(rRs.getString("city"));
 //                                entity.setCountry(rRs.getString("country"));
@@ -508,7 +508,7 @@
 //                    ResultSet rRs = null;
 //                    try {
 //                        rCon = DataSource.getInstance().getConnection();
-//                        ArrayList<HouseMinEntity> entities = new ArrayList<>();
+//                        ArrayList<HouseMinBean> entities = new ArrayList<>();
 //                        for (int i = 0; i < Constants.K; i++) {
 //                            query = "SELECT houseID, city, country, rating, numRatings, minCost FROM houses WHERE" +
 //                                    " houseID = ?";
@@ -516,7 +516,7 @@
 //                            rSt.setInt(1, predicted.get(i).left);
 //                            rRs = rSt.executeQuery();
 //                            while (rRs.next()) {
-//                                HouseMinEntity entity = new HouseMinEntity();
+//                                HouseMinBean entity = new HouseMinBean();
 //                                entity.setHouseId(rRs.getInt("houseID"));
 //                                entity.setCity(rRs.getString("city"));
 //                                entity.setCountry(rRs.getString("country"));

@@ -3,7 +3,7 @@ package com.WAT.airbnb.rest.users.messages;
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
 import com.WAT.airbnb.rest.Authenticator;
-import com.WAT.airbnb.rest.entities.MessageEntity;
+import com.WAT.airbnb.rest.entities.MessageBean;
 import com.google.gson.Gson;
 
 import javax.ws.rs.*;
@@ -25,7 +25,7 @@ public class MessageControl {
     public Response sendMessage(@PathParam("receiverId") int recId,
                                 String json) {
         Gson gson = new Gson();
-        MessageEntity message = gson.fromJson(json, MessageEntity.class);
+        MessageBean message = gson.fromJson(json, MessageBean.class);
         Authenticator auth = new Authenticator(message.getToken(), Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -189,9 +189,9 @@ public class MessageControl {
             pSt.setString(2, show);
 
             rs = pSt.executeQuery();
-            List<MessageEntity> entities = new ArrayList<>();
+            List<MessageBean> entities = new ArrayList<>();
             while (rs.next()) {
-                MessageEntity message = new MessageEntity();
+                MessageBean message = new MessageBean();
                 message.setMessage(rs.getString("message"));
                 message.setReceiverId(rs.getInt("receiverId"));
                 message.setSenderId(rs.getInt("senderId"));

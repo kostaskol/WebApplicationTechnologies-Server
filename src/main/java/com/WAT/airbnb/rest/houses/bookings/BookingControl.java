@@ -14,7 +14,6 @@ import java.sql.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.WAT.airbnb.util.helpers.*;
 
@@ -26,7 +25,7 @@ public class BookingControl {
     @Produces(MediaType.APPLICATION_JSON)
     public Response newBooking(String json) {
         Gson gson = new Gson();
-        BookingEntity entity = gson.fromJson(json, BookingEntity.class);
+        BookingBean entity = gson.fromJson(json, BookingBean.class);
         Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_USER);
 
         if (!auth.authenticate()) {
@@ -97,9 +96,9 @@ public class BookingControl {
             pSt.setInt(1, userId);
             rs = pSt.executeQuery();
 
-            ArrayList<BookedHouseEntity> entities = new ArrayList<>();
+            ArrayList<BookedHouseBean> entities = new ArrayList<>();
             while (rs.next()) {
-                HouseMinEntity minEntity = new HouseMinEntity();
+                HouseMinBean minEntity = new HouseMinBean();
                 minEntity.setHouseId(rs.getInt("houseID"));
                 minEntity.setCity(rs.getString("city"));
                 minEntity.setCountry(rs.getString("country"));
@@ -107,13 +106,13 @@ public class BookingControl {
                 minEntity.setMinCost(rs.getFloat("minCost"));
                 minEntity.setPicture(FileHelper.getFileAsString(rs.getString("pictureURL")));
 
-                BookedHouseEntity bookedHouseEntity = new BookedHouseEntity();
-                bookedHouseEntity.setBookingId(rs.getInt("bookingID"));
-                bookedHouseEntity.setDateFrom(DateHelper.dateToString(rs.getDate("dateFrom")));
-                bookedHouseEntity.setDateTo(DateHelper.dateToString(rs.getDate("dateTo")));
-                bookedHouseEntity.setHouse(minEntity);
+                BookedHouseBean bookedHouseBean = new BookedHouseBean();
+                bookedHouseBean.setBookingId(rs.getInt("bookingID"));
+                bookedHouseBean.setDateFrom(DateHelper.dateToString(rs.getDate("dateFrom")));
+                bookedHouseBean.setDateTo(DateHelper.dateToString(rs.getDate("dateTo")));
+                bookedHouseBean.setHouse(minEntity);
 
-                entities.add(bookedHouseEntity);
+                entities.add(bookedHouseBean);
             }
 
             Gson gson = new Gson();
@@ -163,7 +162,7 @@ public class BookingControl {
             ConnectionCloser.closeAll(con, pSt, rs);
         }
 
-        ArrayList<BookedHouseEntity> entities = new ArrayList<>();
+        ArrayList<BookedHouseBean> entities = new ArrayList<>();
 
         for (Integer houseId : houseMap.keySet()) {
             try {
@@ -172,12 +171,12 @@ public class BookingControl {
                 pSt = con.prepareStatement(query);
                 pSt.setInt(1, houseId);
                 rs = pSt.executeQuery();
-                ArrayList<HouseMinEntity> houseEntities = HouseGetter.getHouseMinList(rs);
-                BookedHouseEntity entity = new BookedHouseEntity();
-                for (House minEntity : houseEntities) {
-                    HouseMinEntity houseMinEntity = (HouseMinEntity) minEntity;
+                ArrayList<HouseMinBean> houseEntities = HouseGetter.getHouseMinList(rs);
+                BookedHouseBean entity = new BookedHouseBean();
+                for (HouseMinBean minEntity : houseEntities) {
+                    HouseMinBean houseMinBean = (HouseMinBean) minEntity;
                     String[] dates = houseMap.get(houseId);
-                    entity.setHouse(houseMinEntity);
+                    entity.setHouse(houseMinBean);
                     entity.setDateFrom(dates[0]);
                     entity.setDateTo(dates[1]);
                     entity.setBookingId(Integer.parseInt(dates[2]));

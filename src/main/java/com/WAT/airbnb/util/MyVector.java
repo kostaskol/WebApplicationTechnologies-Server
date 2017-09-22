@@ -7,6 +7,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 
+/**
+ *  Simple Vector representation class that provides
+ *  basic vector operations (i.e. Dot product and cosine similarity)
+ *  @author Kostas Kolivas
+ *  @version 1.0
+ */
 public class MyVector {
     private double[] values;
     private boolean[] bValues;

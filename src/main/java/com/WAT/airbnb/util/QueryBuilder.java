@@ -1,5 +1,11 @@
 package com.WAT.airbnb.util;
 
+/**
+ *  Simple query builder class that uses a string builder
+ *  to append to the existing query string.
+ *  @author Kostas Kolivas
+ *  @version 1.0
+ */
 public class QueryBuilder {
     private StringBuilder builder;
 

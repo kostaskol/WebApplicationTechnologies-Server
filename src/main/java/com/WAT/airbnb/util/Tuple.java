@@ -1,5 +1,11 @@
 package com.WAT.airbnb.util;
 
+/**
+ * @author Kostas Kolivas
+ * @version 1.0
+ * @param <X>
+ * @param <Y>
+ */
 public class Tuple<X, Y> {
     public X left;
     public Y right;

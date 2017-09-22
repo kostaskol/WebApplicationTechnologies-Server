@@ -9,6 +9,8 @@ import java.util.Locale;
 /**
  *  Static class that converts java.lang.String objects to java.sql.Date objects
  *  and vice versa
+ *  @author Kostas Kolivas
+ *  @version 1.0
  */
 public class DateHelper {
     static public java.sql.Date stringToDate(String strDate) throws ParseException {

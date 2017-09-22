@@ -10,6 +10,7 @@ import com.WAT.airbnb.util.blacklist.BlackList;
 import com.WAT.airbnb.util.helpers.ConnectionCloser;
 import com.WAT.airbnb.util.helpers.DateHelper;
 import com.WAT.airbnb.util.helpers.FileHelper;
+import com.WAT.airbnb.util.passwordverifier.PasswordVerifier;
 import com.google.gson.Gson;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -47,9 +48,9 @@ public class UserControl {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response signUp(SignUpBean bean) {
-        Password pass;
+        PasswordVerifier pass;
         try {
-            pass = new Password(bean.getPasswd(), false);
+            pass = new PasswordVerifier(bean.getPasswd(), false);
             pass.hash();
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -125,11 +126,11 @@ public class UserControl {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response resetPass(String json) {
         Gson gson = new Gson();
-        PassResetEntity resetEntity = gson.fromJson(json, PassResetEntity.class);
+        PassResetBean resetEntity = gson.fromJson(json, PassResetBean.class);
 
-        Password pass;
+        PasswordVerifier pass;
         try {
-            pass = new Password(resetEntity.getPassword(), false);
+            pass = new PasswordVerifier(resetEntity.getPassword(), false);
             pass.hash();
         } catch(RuntimeException e) {
             e.printStackTrace();
@@ -172,7 +173,7 @@ public class UserControl {
             pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
             rs = pSt.executeQuery();
-            UserEntity entity = new UserEntity();
+            UserBean entity = new UserBean();
             if (rs.next()) {
                 entity.setFirstName(rs.getString("firstName"));
                 entity.setLastName(rs.getString("lastName"));
@@ -257,7 +258,7 @@ public class UserControl {
             File file = new File(localUrl);
             String encoded = Base64.getEncoder().withoutPadding().encodeToString(Files.readAllBytes(file.toPath()));
 
-            UserEntity user = new UserEntity();
+            UserBean user = new UserBean();
             user.setAccType(type);
             user.setApproved(approved);
             user.setFirstName(first);
@@ -287,7 +288,7 @@ public class UserControl {
     public Response updateUser(String json) {
         System.out.println(json);
         Gson gson = new Gson();
-        UserUpdateEntity entity = gson.fromJson(json, UserUpdateEntity.class);
+        UserUpdateBean entity = gson.fromJson(json, UserUpdateBean.class);
         Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -330,7 +331,7 @@ public class UserControl {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response changeEmail(String json) {
         Gson gson = new Gson();
-        ChangeMailEntity entity = gson.fromJson(json, ChangeMailEntity.class);
+        ChangeMailBean entity = gson.fromJson(json, ChangeMailBean.class);
         Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -376,7 +377,8 @@ public class UserControl {
         Connection con = null;
         PreparedStatement pSt = null;
         try {
-            String localUrl = FileHelper.saveFile(uploadedInputStream, userId, fileDetails, true);
+            String localUrl = FileHelper.saveFile(uploadedInputStream, userId, fileDetails,
+                    true, false);
             con = DataSource.getInstance().getConnection();
             String update = "UPDATE users SET pictureURL = ? WHERE userID = ?";
             pSt = con.prepareStatement(update);
@@ -424,7 +426,7 @@ public class UserControl {
                 return null;
             } else {
                 System.out.println(rs.getString("passwd"));
-                Password pass = new Password(rs.getString("passwd"), true);
+                PasswordVerifier pass = new PasswordVerifier(rs.getString("passwd"), true);
                 try {
                     if (pass.verify(passwd)) {
                         System.out.println("Verified");
@@ -452,11 +454,10 @@ public class UserControl {
             e.printStackTrace();
             return null;
         }finally {
+            ConnectionCloser.closeAll(con, null, rs);
             if (con != null) {
                 try {
-                    DataSource.getInstance().printCon();
                     con.close();
-                    DataSource.getInstance().printCon();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -479,8 +480,10 @@ public class UserControl {
                 .setSubject("users/" + info.id)
                 .claim("id", String.valueOf(info.id));
         long expMillis;
+        System.out.println(info.accountType);
         switch (info.accountType) {
             case Constants.TYPE_ADMIN:
+                System.out.println("Admin has logged in");
                 builder.claim("scope", Constants.SCOPE_ADMINS);
                 // For admins, we set a 5 minute reset on the token
                 expMillis = System.currentTimeMillis() + Constants.ADMIN_EXPIRATION_TIME;

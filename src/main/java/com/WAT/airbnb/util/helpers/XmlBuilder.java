@@ -9,6 +9,14 @@ import java.sql.Struct;
 
 import static java.lang.String.valueOf;
 
+/**
+ *  Uses James Murty's XMLBuilder class (https://github.com/jmurty/java-xmlbuilder)
+ *  Accepts 5 ResultSet objects that correspond to the 5 main tables in the Data Base
+ *  and returns an XMLBuilder object which can be used to either generate a java.lang.String object
+ *  or a file
+ *  @author Kostas Kolivas
+ *  @version 1.0
+ */
 public class XmlBuilder {
     static public XMLBuilder getXml(ResultSet users, ResultSet houses, ResultSet comments, ResultSet bookings,
                                     ResultSet messages) {
@@ -24,11 +32,19 @@ public class XmlBuilder {
                         .up()
                         .e("Email")
                         .t(users.getString("email"))
-                        .up()
-                        .e("AccountType")
-                        .t(users.getString("accType"))
-                        .up()
-                        .e("FirstName")
+                        .up();
+                    String accType = users.getString("accType");
+                    if (accType == null) {
+                        accType = "N/A";
+                    }
+                xmlBuilder = xmlBuilder.e("AccountType")
+                        .t(accType)
+                        .up();
+                String fName = users.getString("firstName");
+                if (fName == null) {
+                    fName = "N/A";
+                }
+                xmlBuilder = xmlBuilder.e("FirstName")
                         .t(users.getString("firstName"))
                         .up()
                         .e("LastName")
@@ -173,9 +189,6 @@ public class XmlBuilder {
                         .e("MinimumDays")
                         .t(valueOf(houses.getInt("minDays")))
                         .up()
-                        .e("Rating")
-                        .t(valueOf(houses.getFloat("rating")))
-                        .up()
                         .e("NumberOfRatings")
                         .t(valueOf(houses.getInt("numRatings")))
                         .up()
@@ -196,6 +209,11 @@ public class XmlBuilder {
 
             xmlBuilder = xmlBuilder.up();
 
+            // There are currently 691,055 entries in the comments table
+            // (~350MB)
+            // If used in debugging, please comment out the following section
+
+            // SECTION START
             xmlBuilder = xmlBuilder.e("Comments");
 
             while (comments.next()) {
@@ -219,6 +237,7 @@ public class XmlBuilder {
             }
 
             xmlBuilder = xmlBuilder.up();
+            // SECTION END
 
             xmlBuilder = xmlBuilder.e("Messages");
 

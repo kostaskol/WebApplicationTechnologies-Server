@@ -15,7 +15,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ *  Static class that makes an HTTP call to the google maps API
+ *  and returns the street name, city and country of the specified latitude and longitude
+ *  @author Kostas Kolivas
+ *  @version 1.0
+ */
 public class ReverseGeocoder {
+    // BUG: Sometimes the API doesn't return a street name OR/AND city for the given latitude
+    //      and longitude
     static public String[] convert(float lat, float lng) throws MalformedURLException, IOException {
         XmlParser parser = new XmlParser(Constants.DIR + "/config.xml");
         URL mapsUrl = new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng +

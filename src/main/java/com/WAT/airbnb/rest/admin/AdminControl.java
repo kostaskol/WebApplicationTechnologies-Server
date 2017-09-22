@@ -3,9 +3,11 @@ package com.WAT.airbnb.rest.admin;
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
 import com.WAT.airbnb.rest.Authenticator;
-import com.WAT.airbnb.rest.entities.UserEntity;
-import com.WAT.airbnb.rest.entities.UserMinEntity;
+import com.WAT.airbnb.rest.entities.UserBean;
+import com.WAT.airbnb.rest.entities.UserCredentialBean;
+import com.WAT.airbnb.rest.entities.UserMinBean;
 import com.WAT.airbnb.util.helpers.*;
+import com.WAT.airbnb.util.passwordverifier.PasswordVerifier;
 import com.google.gson.Gson;
 import com.jamesmurty.utils.XMLBuilder;
 import io.jsonwebtoken.JwtBuilder;
@@ -15,11 +17,11 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.sql.*;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -68,10 +70,16 @@ import java.util.Properties;
  *                      ...
  *                  </Bookings>
  *              </Airbnb>
+ *  @author Kostas Kolivas
+ *  @version 1.0
  */
 @Path("/admin")
 public class AdminControl {
 
+    /**
+     * Verifies the given token
+     * @param token Token to be verified
+     */
     @Path("/verifytoken")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -86,6 +94,53 @@ public class AdminControl {
         }
     }
 
+    @Path("/login")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response login(UserCredentialBean bean) {
+        Connection con = null;
+        PreparedStatement pSt = null;
+        ResultSet rs = null;
+        try {
+            con = DataSource.getInstance().getConnection();
+            String query = "SELECT userID, passwd FROM users WHERE email = ? AND accType " +
+                    "LIKE \"1%\" LIMIT 1";
+            pSt = con.prepareStatement(query);
+            pSt.setString(1, bean.getMail());
+            System.out.println("PSt to string = " + pSt.toString());
+            rs = pSt.executeQuery();
+            if (rs.next()) {
+                System.out.println("Got next");
+                PasswordVerifier pv = new PasswordVerifier(rs.getString("passwd"), true);
+                if (!pv.verify(bean.getPasswd())) {
+                    return Response.status(Response.Status.UNAUTHORIZED).build();
+                } else {
+                    return Response.ok(Jwts.builder()
+                                .setSubject("users/" + rs.getString("userID"))
+                                .claim("id", String.valueOf(rs.getString("userID")))
+                                .claim("scope", Constants.SCOPE_ADMINS)
+                                .setExpiration(new Date(System.currentTimeMillis() +
+                                        Constants.ADMIN_EXPIRATION_TIME))
+                                .signWith(SignatureAlgorithm.HS256, Constants.key).compact())
+                            .build();
+
+                }
+            } else {
+                System.out.println("No next");
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.closeAll(con, pSt, rs);
+        }
+    }
+
+    /**
+     * Returns a list of all the users in the database (Minified)
+     * @param token
+     */
     @Path("/getusers")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -98,16 +153,17 @@ public class AdminControl {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Connection con = null;
+        Statement st = null;
         ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT userId, email, accType, firstName, lastName, approved, pictureURL FROM users";
-            Statement st = con.createStatement();
+            st = con.createStatement();
             rs = st.executeQuery(query);
-            ArrayList<UserMinEntity> users = new ArrayList<>();
+            ArrayList<UserMinBean> users = new ArrayList<>();
             while (rs.next()) {
                 if (rs.getString("email").equals("root")) continue;
-                UserMinEntity user = new UserMinEntity();
+                UserMinBean user = new UserMinBean();
                 user.setUserId(rs.getInt("userId"));
                 user.setEmail(rs.getString("email"));
                 user.setAccType(rs.getString("accType"));
@@ -130,31 +186,23 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(con,st, rs);
         }
     }
 
+    /**
+     * Alters the given user (specified by the userId)
+     * according to the given JSON string
+     * @param userId
+     * @param json
+     */
     @Path("/alteruser/{userId}")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response alterUser(@PathParam("userId") int userId,
                               String json) {
         Gson gson = new Gson();
-        UserEntity entity = gson.fromJson(json, UserEntity.class);
+        UserBean entity = gson.fromJson(json, UserBean.class);
         Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_ADMIN);
         try {
             auth.authenticate();
@@ -163,6 +211,7 @@ public class AdminControl {
         }
 
         Connection con = null;
+        PreparedStatement pSt = null;
         try {
             con = DataSource.getInstance().getConnection();
             String update = "UPDATE users SET " +
@@ -173,7 +222,7 @@ public class AdminControl {
                     "dateOfBirth = ?, " +
                     "country = ?, " +
                     "bio = ? WHERE userID = ?";
-            PreparedStatement pSt = con.prepareStatement(update);
+            pSt = con.prepareStatement(update);
             pSt.setString(1, entity.getEmail());
             pSt.setString(2, entity.getFirstName());
             pSt.setString(3, entity.getLastName());
@@ -188,9 +237,16 @@ public class AdminControl {
         } catch (SQLException | IOException | ParseException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.closeAll(con, pSt, null);
         }
     }
 
+    /**
+     * Approves the specified userID for renting their house
+     * @param userId
+     * @param token
+     */
     @Path("/approve/{userId}")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -224,6 +280,11 @@ public class AdminControl {
         }
     }
 
+    /**
+     * Returns the full info about the specified user
+     * @param userId
+     * @param token
+     */
     @Path("/get/{userId}")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -237,16 +298,17 @@ public class AdminControl {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Connection con = null;
+        PreparedStatement pSt = null;
         ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT * FROM users WHERE userId = ? LIMIT 1";
-            PreparedStatement pSt = con.prepareStatement(query);
+            pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
 
             rs = pSt.executeQuery();
             if (rs.next()) {
-                UserEntity entity = new UserEntity();
+                UserBean entity = new UserBean();
                 entity.setEmail(rs.getString("email"));
                 entity.setAccType(rs.getString("accType"));
                 entity.setFirstName(rs.getString("firstName"));
@@ -276,26 +338,16 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
 
     }
 
 
+    /**
+     * Returns a list of only the users that have not yet been approved
+     * @param token
+     */
     @Path("/getapprovallist")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -309,15 +361,16 @@ public class AdminControl {
         }
 
         Connection con = null;
+        Statement st = null;
         ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT * FROM users WHERE approved = 0";
-            Statement st = con.createStatement();
+            st = con.createStatement();
             rs = st.executeQuery(query);
-            ArrayList<UserMinEntity> entities = new ArrayList<>();
+            ArrayList<UserMinBean> entities = new ArrayList<>();
             while (rs.next()) {
-                UserMinEntity user = new UserMinEntity();
+                UserMinBean user = new UserMinBean();
                 user.setUserId(rs.getInt("userID"));
                 user.setAccType(rs.getString("accType"));
                 user.setApproved(false);
@@ -340,58 +393,30 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(con, st, rs);
         }
     }
 
-    @Path("/getxml")
-    @GET
-    @Produces(MediaType.APPLICATION_XML)
-    public Response getXml(@QueryParam("t") String t) {
-        System.out.println("Token = " + t);
-        Authenticator auth = new Authenticator(t);
-        try {
-            auth.authenticateExport();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
-        File file = new File(Constants.DIR + "/exp.xml");
-        Response.ResponseBuilder responseBuilder = Response.ok((Object) file);
-        responseBuilder.header("Content-Disposition", "attachment; filename=\"exported.xml\"");
-        return responseBuilder.build();
-    }
-
-
+    /**
+     * When the administrator requests an XML export, a temporary export.xml
+     * file is created in the filesystem and a token is issued with an expiration time
+     * of 2 seconds. The client then sends a GET request (through the URL) to /admin/getxml
+     * supplying the previously issued token.
+     * @param token
+     */
     @Path("/rawexport")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
     public Response exportRaw(String token) {
+        System.out.println("Authenticating token: " + token);
         Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
-        try {
-            auth.authenticate();
-        } catch (Exception e) {
+        if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         Connection con = null;
         ResultSet users = null,
-                houses = null,
+                houses,
                 comments = null,
                 bookings = null,
                 messages = null;
@@ -432,60 +457,61 @@ public class AdminControl {
             PrintWriter writer = new PrintWriter(new FileOutputStream(Constants.DIR + "/exp.xml"));
             xmlBuilder.toWriter(writer, outputProperties);
             JwtBuilder builder = Jwts.builder()
-                    .setExpiration(new Date(System.currentTimeMillis() + 180000)); // Give the browser 1 second to
-                                                                                    // initiate the download
+                    .claim("usage", "xmlexport")
+                    .setExpiration(new Date(System.currentTimeMillis() + 2000)); // Give the
+            // browser 1 second to
+            // initiate the download
             return Response.ok(builder.signWith(SignatureAlgorithm.HS256, Constants.key).compact()).build();
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (users != null) {
-                try {
-                    users.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (houses != null) {
-                try {
-                    houses.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (comments != null) {
-                try {
-                    comments.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (bookings != null) {
-                try {
-                    bookings.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (messages != null) {
-                try {
-                    messages.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            new ConnectionCloser().closeCon(con)
+                    .closeRs(users)
+                    .closeRs(comments)
+                    .closeRs(bookings)
+                    .closeRs(messages);
         }
     }
+
+    /**
+     *  Authenticates the provided token and
+     *  returns the xml file as an output stream.
+     *  Also deletes the file after it has been successfully sent
+     * @param t
+     */
+    @Path("/getxml")
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getXml(@QueryParam("t") String t) {
+        System.out.println("Token = " + t);
+        Authenticator auth = new Authenticator(t);
+        if (!auth.authenticateExport()) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            File file = new File(Constants.DIR + "/exp.xml");
+            final InputStream inpStream = new FileInputStream(file);
+            StreamingOutput output = outputStream -> {
+                int length;
+                byte[] buffer = new byte[1024];
+                while ((length = inpStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, length);
+                }
+                outputStream.flush();
+                inpStream.close();
+                file.delete();
+            };
+
+            return Response.ok(output).header("Content-Disposition", "attachment; " +
+                    "filename=\"exported.xml\"").build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
 }

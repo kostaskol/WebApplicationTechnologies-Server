@@ -3,7 +3,7 @@ package com.WAT.airbnb.rest.houses.comments;
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
 import com.WAT.airbnb.rest.Authenticator;
-import com.WAT.airbnb.rest.entities.CommentEntity;
+import com.WAT.airbnb.rest.entities.CommentBean;
 import com.google.gson.Gson;
 
 import javax.ws.rs.*;
@@ -26,7 +26,7 @@ public class CommentControl {
     public Response newComment(@PathParam("houseId") int houseId,
                                String json) {
         Gson gson = new Gson();
-        CommentEntity comment = gson.fromJson(json, CommentEntity.class);
+        CommentBean comment = gson.fromJson(json, CommentBean.class);
         Authenticator auth = new Authenticator(comment.getToken(), Constants.TYPE_USER);
 
         if (!auth.authenticate()) {
@@ -67,7 +67,7 @@ public class CommentControl {
     public Response edit(@PathParam("commentId") int commentId,
                          String json) {
         Gson gson = new Gson();
-        CommentEntity comment = gson.fromJson(json, CommentEntity.class);
+        CommentBean comment = gson.fromJson(json, CommentBean.class);
         Authenticator auth = new Authenticator(comment.getToken(), Constants.TYPE_USER);
 
         if (!auth.authenticate()) {
@@ -95,7 +95,7 @@ public class CommentControl {
     public Response getAll(@PathParam("houseId") int houseId) {
         Connection con = null;
         ResultSet rs = null;
-        List<CommentEntity> entities = new ArrayList<>();
+        List<CommentBean> entities = new ArrayList<>();
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT * FROM comments WHERE houseID = ?";
@@ -103,7 +103,7 @@ public class CommentControl {
             pSt.setInt(1, houseId);
             rs = pSt.executeQuery();
             while (rs.next()) {
-                CommentEntity comment = new CommentEntity();
+                CommentBean comment = new CommentBean();
                 comment.setCommentId(rs.getInt("commentID"));
                 comment.setUserId(rs.getInt("userID"));
                 comment.setHouseId(houseId);

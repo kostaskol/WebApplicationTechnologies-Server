@@ -35,7 +35,7 @@ public class HouseControl {
                                   @FormDataParam("token") String token,
                                   @FormDataParam("data") String jsonString) {
         Gson gson = new Gson();
-        HouseEntity entity = gson.fromJson(jsonString, HouseEntity.class);
+        HouseBean entity = gson.fromJson(jsonString, HouseBean.class);
         Authenticator auth = new Authenticator(token, Constants.TYPE_RENTER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -117,7 +117,8 @@ public class HouseControl {
                 throw new SQLException("No inserted id");
             }
 
-            String fileUrl = FileHelper.saveFile(uploadedFileInputStream, insertedId, fileDetails, false);
+            String fileUrl = FileHelper.saveFile(uploadedFileInputStream, insertedId,
+                    fileDetails,false, true);
 
             insertSt = "INSERT INTO photographs (houseID, main, pictureURL)" +
                     "VALUES " +
@@ -145,7 +146,7 @@ public class HouseControl {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response searchHouse(String json) {
         Gson gson = new Gson();
-        HouseEntity entity = gson.fromJson(json, HouseEntity.class);
+        HouseBean entity = gson.fromJson(json, HouseBean.class);
         Connection con = null;
         ResultSet rs = null;
         System.out.println("Got request");
@@ -287,11 +288,11 @@ public class HouseControl {
 
             System.out.println("Executing statement: " + pSt.toString());
 
-            ArrayList<HouseMinEntity> minEntities = new ArrayList<>();
+            ArrayList<HouseMinBean> minEntities = new ArrayList<>();
 
             rs = pSt.executeQuery();
             while (rs.next()) {
-                HouseMinEntity minEntity = new HouseMinEntity();
+                HouseMinBean minEntity = new HouseMinBean();
                 minEntity.setHouseId(rs.getInt("houseId"));
                 minEntity.setCity(rs.getString("city"));
                 minEntity.setCountry(rs.getString("country"));
@@ -373,7 +374,7 @@ public class HouseControl {
         Connection con = null;
         ResultSet rs = null;
         PreparedStatement pSt = null;
-        ArrayList<HouseMinEntity> entities = new ArrayList<>();
+        ArrayList<HouseMinBean> entities = new ArrayList<>();
         try {
 
             con = DataSource.getInstance().getConnection();
@@ -384,7 +385,7 @@ public class HouseControl {
             pSt.setInt(2, Constants.PAGE_SIZE);
             rs = pSt.executeQuery();
             while (rs.next()) {
-                HouseMinEntity entity = new HouseMinEntity();
+                HouseMinBean entity = new HouseMinBean();
                 entity.setCity(rs.getString("city"));
                 entity.setCountry(rs.getString("country"));
                 entity.setNumRatings(rs.getInt("numRatings"));
@@ -598,7 +599,7 @@ public class HouseControl {
                     ResultSet rRs = null;
                     try {
                         rCon = DataSource.getInstance().getConnection();
-                        ArrayList<HouseMinEntity> entities = new ArrayList<>();
+                        ArrayList<HouseMinBean> entities = new ArrayList<>();
                         for (i = 0; i < Constants.K; i++) {
                             query = "SELECT houseID, city, country, numRatings, minCost FROM houses WHERE" +
                                     " houseID = ?";
@@ -606,7 +607,7 @@ public class HouseControl {
                             rSt.setInt(1, predicted.get(i).left);
                             rRs = rSt.executeQuery();
                             while (rRs.next()) {
-                                HouseMinEntity entity = new HouseMinEntity();
+                                HouseMinBean entity = new HouseMinBean();
                                 entity.setHouseId(rRs.getInt("houseID"));
                                 entity.setCity(rRs.getString("city"));
                                 entity.setCountry(rRs.getString("country"));
@@ -744,7 +745,7 @@ public class HouseControl {
                     ResultSet rRs = null;
                     try {
                         rCon = DataSource.getInstance().getConnection();
-                        ArrayList<HouseMinEntity> entities = new ArrayList<>();
+                        ArrayList<HouseMinBean> entities = new ArrayList<>();
                         for (int i = 0; i < Constants.K; i++) {
                             query = "SELECT houseID, city, country, numRatings, minCost FROM houses WHERE" +
                                     " houseID = ?";
@@ -752,7 +753,7 @@ public class HouseControl {
                             rSt.setInt(1, predicted.get(i).left);
                             rRs = rSt.executeQuery();
                             while (rRs.next()) {
-                                HouseMinEntity entity = new HouseMinEntity();
+                                HouseMinBean entity = new HouseMinBean();
                                 entity.setHouseId(rRs.getInt("houseID"));
                                 entity.setCity(rRs.getString("city"));
                                 entity.setCountry(rRs.getString("country"));
@@ -867,7 +868,7 @@ public class HouseControl {
             pSt.setInt(1, userId);
             rs = pSt.executeQuery();
             System.out.println("Executing query");
-            ArrayList<HouseMinEntity> entities = HouseGetter.getHouseMinList(rs);
+            ArrayList<HouseMinBean> entities = HouseGetter.getHouseMinList(rs);
             System.out.println("Got results");
             Gson gson = new Gson();
 
@@ -955,7 +956,7 @@ public class HouseControl {
            PreparedStatement pSt = con.prepareStatement(query);
            pSt.setInt(1, houseId);
            rs = pSt.executeQuery();
-           HouseEntity house = new HouseEntity();
+           HouseBean house = new HouseBean();
            if (rs.next()) {
 
 
@@ -1047,7 +1048,7 @@ public class HouseControl {
     public Response updateHouse(@PathParam("houseId") int houseId,
                                 String json) {
         Gson gson = new Gson();
-        HouseUpdateEntity entity = gson.fromJson(json, HouseUpdateEntity.class);
+        HouseUpdateBean entity = gson.fromJson(json, HouseUpdateBean.class);
         Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_RENTER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -1058,7 +1059,7 @@ public class HouseControl {
         try {
             con = DataSource.getInstance().getConnection();
             String[] location = ReverseGeocoder.convert(entity.getHouse().getLatitude(), entity.getHouse().getLongitude());
-            HouseEntity he = entity.getHouse();
+            HouseBean he = entity.getHouse();
             String update = "UPDATE houses SET " +
                     "latitude = ?, longitude = ?, city = ?, country = ?, numBeds = ?, numBaths = ?, " +
                     "accommodates = ?, hasLivingRoom = ?, smokingAllowed = ?, petsAllowed = ?, eventsAllowed = ?, " +
@@ -1123,7 +1124,8 @@ public class HouseControl {
         Connection con = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String fileUrl = FileHelper.saveFile(uploadedInputStream, id, fileDetails,false);
+            String fileUrl = FileHelper.saveFile(uploadedInputStream, id, fileDetails,false,
+                    false);
             String insert = "INSERT INTO photographs (houseID, pictureURL, main)" +
                     "VALUES (" +
                     "?, ?, 0)";

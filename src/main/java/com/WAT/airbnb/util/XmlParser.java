@@ -16,6 +16,9 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.StringWriter;
 
+/** Simple Xml File parser
+ *  XML parser mainly used to parse the DataBase and Google API configuartion file
+ */
 public class XmlParser {
     private String filename;
 

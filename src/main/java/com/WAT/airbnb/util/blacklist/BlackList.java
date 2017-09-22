@@ -2,6 +2,7 @@ package com.WAT.airbnb.util.blacklist;
 
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
+import com.WAT.airbnb.util.helpers.ConnectionCloser;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -10,10 +11,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Timer;
 
+/**
+ * Singleton class that "blacklists" signed out tokens
+ * @author Kostas Kolivas
+ * @version 1.0
+ */
 public class BlackList {
     private static BlackList instance = null;
     private Timer timer = null;
     private TokenDeletionTimer deletionTimer = null;
+
     private BlackList() {}
 
     public static BlackList getInstance() {
@@ -40,29 +47,7 @@ public class BlackList {
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         } finally {
-            if (checkCon != null) {
-                try {
-                    checkCon.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (checkPst != null) {
-                try {
-                    checkPst.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (checkRs != null) {
-                try {
-                    checkRs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(checkCon, checkPst, checkRs);
         }
         try {
             con = DataSource.getInstance().getConnection();
@@ -89,21 +74,7 @@ public class BlackList {
             }
 
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (pSt != null) {
-                try {
-                    pSt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(con, pSt, null);
         }
     }
 
@@ -119,29 +90,7 @@ public class BlackList {
             rs = pSt.executeQuery();
             return rs.next();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (pSt != null) {
-                try {
-                    pSt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(con, pSt, rs);
         }
     }
 }

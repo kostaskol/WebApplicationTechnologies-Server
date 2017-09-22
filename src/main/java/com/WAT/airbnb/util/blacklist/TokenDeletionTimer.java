@@ -3,6 +3,7 @@ package com.WAT.airbnb.util.blacklist;
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
 import com.WAT.airbnb.rest.Authenticator;
+import com.WAT.airbnb.util.helpers.ConnectionCloser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -13,6 +14,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ *  Simple timed task that runs every 30 minutes and removes
+ *  the blacklisted tokens from the database (since by that time they are already invalid)
+ *  @author Kostas Kolivas
+ *  @version 1.0
+ */
 public class TokenDeletionTimer extends TimerTask {
     private Timer timer;
     private boolean stopped;
@@ -39,8 +46,10 @@ public class TokenDeletionTimer extends TimerTask {
             }
             while (rs.next()) {
                 String token = rs.getString("token");
+                // Try to validate token.
+                // If it fails, we remove it from the database
                 try {
-                    Jws<Claims> claims = Jwts.parser()
+                    Jwts.parser()
                             .setSigningKey(Constants.key)
                             .parseClaimsJws(token);
                 } catch (Exception e) {
@@ -60,34 +69,14 @@ public class TokenDeletionTimer extends TimerTask {
                     } catch (SQLException | IOException e2) {
                         throw e2;
                     } finally {
-                        if (deleteCon != null) {
-                            try {
-                                deleteCon.close();
-                            } catch (SQLException e4) {
-                                e4.printStackTrace();
-                            }
-                        }
+                        ConnectionCloser.closeAll(deleteCon, null, null);
                     }
                 }
             }
         } catch (SQLException | IOException e1) {
             throw e1;
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.closeAll(con, null, rs);
         }
 
     }

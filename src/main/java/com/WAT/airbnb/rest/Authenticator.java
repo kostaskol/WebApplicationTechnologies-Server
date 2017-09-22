@@ -9,6 +9,9 @@ import io.jsonwebtoken.Jwts;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 public class Authenticator {
     private String token;
     private Integer id;
@@ -38,43 +41,58 @@ public class Authenticator {
         this.token = token;
     }
 
-    public void authenticateExport() throws Exception {
-        Jws<Claims> claims = Jwts.parser()
-                .setSigningKey(Constants.key)
-                .parseClaimsJws(this.token);
+    public boolean authenticateExport() {
+        try {
+            Jws<Claims> claims = Jwts.parser()
+                    .setSigningKey(Constants.key)
+                    .parseClaimsJws(this.token);
+
+            if (claims.getBody().get("usage").equals("xml")) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
 
     }
 
     public boolean authenticate() {
-        BlackList blackList = BlackList.getInstance();
-        Jws<Claims> claims = Jwts.parser()
-                .setSigningKey(Constants.key)
-                .parseClaimsJws(this.token);
-
-        String scope = (String) claims.getBody().get("scope");
-        boolean verified = false;
-        for (String s : this.type) {
-            if (scope.equals(s)) {
-                verified = true;
-                break;
-            }
-        }
-        if (!verified) {
-            System.out.println("Not verified");
-            return false;
-        }
-
         try {
-            if (blackList.in(token)) {
+            BlackList blackList = BlackList.getInstance();
+            Jws<Claims> claims = Jwts.parser()
+                    .setSigningKey(Constants.key)
+                    .parseClaimsJws(this.token);
+
+            String scope = (String) claims.getBody().get("scope");
+            boolean verified = false;
+            for (String s : this.type) {
+                if (scope.equals(s)) {
+                    verified = true;
+                    break;
+                }
+            }
+            if (!verified) {
+                System.out.println("Not verified");
                 return false;
             }
+
+            try {
+                if (blackList.in(token)) {
+                    return false;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            this.id = Integer.parseInt((String) claims.getBody().get("id"));
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
-
-        this.id = Integer.parseInt((String) claims.getBody().get("id"));
-        return true;
     }
 
     public int getId() {

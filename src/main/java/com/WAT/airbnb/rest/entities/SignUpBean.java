@@ -1,13 +1,13 @@
 package com.WAT.airbnb.rest.entities;
 
 public class SignUpBean {
-    String email;
-    String passwd;
-    String accountType;
-    String firstName;
-    String lastName;
-    String phoneNumber;
-    String dateOfBirth;
+    private String email;
+    private String passwd;
+    private String accountType;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private String dateOfBirth;
 
     public SignUpBean() {}
 

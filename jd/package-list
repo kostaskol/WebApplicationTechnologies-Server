@@ -1,0 +1,16 @@
+com.WAT.airbnb
+com.WAT.airbnb.db
+com.WAT.airbnb.etc
+com.WAT.airbnb.rest
+com.WAT.airbnb.rest.admin
+com.WAT.airbnb.rest.entities
+com.WAT.airbnb.rest.houses
+com.WAT.airbnb.rest.houses.bookings
+com.WAT.airbnb.rest.houses.comments
+com.WAT.airbnb.rest.jacksonClasses.authentication
+com.WAT.airbnb.rest.users
+com.WAT.airbnb.rest.users.messages
+com.WAT.airbnb.util
+com.WAT.airbnb.util.blacklist
+com.WAT.airbnb.util.helpers
+com.WAT.airbnb.util.passwordverifier

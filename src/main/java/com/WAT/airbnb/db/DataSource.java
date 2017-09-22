@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ *  Singleton class that utilises Apache Commons' Connection Pooling (DBCP)
+ *  @author Kostas Kolivas
+ *  @version 1.0
+ */
 public class DataSource {
     private static DataSource dataSource;
     private BasicDataSource ds;
@@ -35,10 +40,5 @@ public class DataSource {
 
     public Connection getConnection() throws SQLException {
         return this.ds.getConnection();
-    }
-
-    public void printCon() {
-        System.out.println("IDLE CONNECTIONS: " + this.ds.getNumIdle());
-        System.out.println("ACTIVE CONNECTIONS: " + this.ds.getNumActive());
     }
 }
