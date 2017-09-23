@@ -10,13 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Authenticates the provided JWT token
  */
 public class Authenticator {
     private String token;
     private Integer id;
     private List<String> type;
 
+    /**
+     * @param token The provided token
+     * @param type The minimum scope that is allowed
+     *             User - Renter - Administrator
+     */
     public Authenticator(String token, int type) {
         this.token = token;
         this.type = new ArrayList<String>();
@@ -41,18 +46,18 @@ public class Authenticator {
         this.token = token;
     }
 
+    /**
+     * When we authenticate for the XML export functionality of the administrator
+     * we check the usage claim
+     * @return True on successful authentication
+     */
     public boolean authenticateExport() {
         try {
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(Constants.key)
                     .parseClaimsJws(this.token);
 
-            if (claims.getBody().get("usage").equals("xml")) {
-                return true;
-            } else {
-                return false;
-            }
-
+            return claims.getBody().get("usage").equals("xml");
         } catch (Exception e) {
             return false;
         }
@@ -75,10 +80,10 @@ public class Authenticator {
                 }
             }
             if (!verified) {
-                System.out.println("Not verified");
                 return false;
             }
 
+            // Check if token has been verified but is in the blacklist
             try {
                 if (blackList.in(token)) {
                     return false;

@@ -69,14 +69,14 @@ public class TokenDeletionTimer extends TimerTask {
                     } catch (SQLException | IOException e2) {
                         throw e2;
                     } finally {
-                        ConnectionCloser.closeAll(deleteCon, null, null);
+                        ConnectionCloser.getCloser().closeAll(deleteCon, null, null);
                     }
                 }
             }
         } catch (SQLException | IOException e1) {
             throw e1;
         } finally {
-            ConnectionCloser.closeAll(con, null, rs);
+            ConnectionCloser.getCloser().closeAll(con, null, rs);
         }
 
     }

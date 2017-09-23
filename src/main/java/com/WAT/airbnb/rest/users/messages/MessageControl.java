@@ -4,6 +4,7 @@ import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.MessageBean;
+import com.WAT.airbnb.util.helpers.ConnectionCloser;
 import com.google.gson.Gson;
 
 import javax.ws.rs.*;
@@ -17,8 +18,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles all messaging operations
+ * Paths:
+ * /send/{receiverId}
+ * /delete/{type}/{messageId}
+ * /receive/{received}
+ */
 @Path("/message")
 public class MessageControl {
+    /**
+     * Creates a new message in the database
+     */
     @Path("/send/{receiverId}")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -34,10 +45,9 @@ public class MessageControl {
         Connection con = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String insert = "INSERT INTO messages (senderId, receiverID, subject, message, deleted)" +
-                    "VALUES (" +
-                    "?, ?, ?, ?, ?" +
-                    ")";
+            String insert = "INSERT INTO messages " +
+                    "(senderId, receiverID, subject, message, deleted)" +
+                    "VALUES (?, ?, ?, ?, ?)";
             PreparedStatement pSt = con.prepareStatement(insert);
             pSt.setInt(1, senderId);
             pSt.setInt(2, recId);
@@ -59,6 +69,17 @@ public class MessageControl {
         }
     }
 
+    /**
+     * In the messages table in the DB, there exists a column named deleted of type char(2)
+     * which holds 3 possible combinations:
+     * 00 - Neither the sender or receiver of the message have deleted this message
+     * 01 - The sender has deleted the message (and thus should not receive it in the message
+     *      list anymore)
+     * 10 - The receiver has deleted the message (and thus should not receive it in the message
+     *      list anymore)
+     * @param type The type of the user that deletes the message (saves us an access to the databse
+     *             since the client knows if it was deleted from the received or sent messages list)
+     */
     @Path("/delete/{type}/{messageId}")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -66,7 +87,6 @@ public class MessageControl {
             @PathParam("type") int type,
             @PathParam("messageId") int messageId,
             String token) {
-        System.out.println("Message id = " + messageId);
         Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
 
         if (!auth.authenticate()) {
@@ -74,12 +94,13 @@ public class MessageControl {
         }
 
         Connection con = null;
+        PreparedStatement pSt = null;
         ResultSet rs = null;
 
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT deleted FROM messages WHERE messageId = ? LIMIT 1";
-            PreparedStatement pSt = con.prepareStatement(query);
+            pSt = con.prepareStatement(query);
             pSt.setInt(1, messageId);
             rs = pSt.executeQuery();
             if (rs.next()) {
@@ -89,13 +110,15 @@ public class MessageControl {
                 switch(type) {
                     case Constants.MESSAGE_RECEIVER:
                         if (savedType.charAt(Constants.MESSAGE_SENDER) == '1') {
-                            // Both the sender and the receiver have deleted this message, so it is safe to delete it
+                            // Both the sender and the receiver have deleted this message,
+                            // so it is safe to delete it
                             statement = "DELETE FROM messages WHERE messageID = ? LIMIT 1";
                             pStatement = con.prepareStatement(statement);
                             pStatement.setInt(1, messageId);
                         } else {
-                            // Only the receiver has deleted the message, so we only don't show them (we still
-                            // show the sender)
+                            // Only the receiver has deleted the message, so we it will no be
+                            // returned in the message list for them alone
+                            // (we still show the sender)
                             statement = "UPDATE messages SET deleted = ? WHERE messageID = ? LIMIT 1";
                             pStatement = con.prepareStatement(statement);
                             pStatement.setString(1, "10");
@@ -116,52 +139,43 @@ public class MessageControl {
                         }
                         break;
                     default:
-                        System.out.println("Bad value for sender " + type);
                         return Response.status(Response.Status.BAD_REQUEST).build();
                 }
-                pStatement.executeUpdate();
+
+                pStatement.execute();
                 return Response.ok().build();
             } else {
-                System.out.println("Not found");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
         } catch (IOException | SQLException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, rs);
         }
     }
 
-
+    /**
+     * @param received Takes the values 0/1 depending on whether the client has requested their
+     *                 received/sent messages respectively
+     * @return A list of non-deleted messages sent/received by the user
+     */
     @Path("/receive/{received}")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public Response getMessages(
             @PathParam("received") int received,
             String token) {
-        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
 
+        Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
         int userId = auth.getId();
         Connection con = null;
+        PreparedStatement pSt = null;
         ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
@@ -171,7 +185,7 @@ public class MessageControl {
             } else {
                 query = "SELECT * FROM messages WHERE senderID = ? and deleted LIKE ?";
             }
-            PreparedStatement pSt = con.prepareStatement(query);
+            pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
 
             String show;
@@ -199,11 +213,10 @@ public class MessageControl {
                 message.setMessageId(rs.getInt("messageID"));
 
                 Connection nameCon = null;
+                PreparedStatement namepSt = null;
                 ResultSet nameRs = null;
                 String name;
                 try {
-                    PreparedStatement namepSt;
-
                     nameCon = DataSource.getInstance().getConnection();
                     query = "SELECT firstName, lastName FROM users WHERE userID = ? LIMIT 1";
                     namepSt = nameCon.prepareStatement(query);
@@ -220,7 +233,8 @@ public class MessageControl {
                     nameRs = namepSt.executeQuery();
 
                     if (nameRs.next()) {
-                        name = nameRs.getString("firstName") + " " + nameRs.getString("lastName");
+                        name = nameRs.getString("firstName") + " "
+                                + nameRs.getString("lastName");
                     } else {
                         throw new SQLException("empty result set");
                     }
@@ -228,21 +242,8 @@ public class MessageControl {
                     e.printStackTrace();
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
                 } finally {
-                    if (nameCon != null) {
-                        try {
-                            nameCon.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    if (nameRs != null) {
-                        try {
-                            nameRs.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    ConnectionCloser.getCloser()
+                            .closeAll(nameCon, namepSt, nameRs);
                 }
 
                 message.setName(name);
@@ -256,21 +257,8 @@ public class MessageControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, rs);
         }
     }
 }

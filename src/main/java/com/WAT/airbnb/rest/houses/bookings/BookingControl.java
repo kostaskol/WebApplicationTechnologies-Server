@@ -17,8 +17,22 @@ import java.util.HashMap;
 
 import com.WAT.airbnb.util.helpers.*;
 
+/**
+ * Handles all booking operations
+ * Paths:
+ * /new
+ * /getrentersbookings
+ * /getusersbookings
+ * /delete/{bookingId}
+ * @author Kostas Kolivas
+ * @version 1.0
+ */
 @Path("/booking")
 public class BookingControl {
+    /**
+     *
+     *  Creates a new booking in the database
+     */
     @Path("/new")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -35,12 +49,12 @@ public class BookingControl {
         int userId = auth.getId();
 
         Connection bookCon = null;
-
+        PreparedStatement pSt = null;
         try {
             bookCon = DataSource.getInstance().getConnection();
             String insert = "INSERT INTO bookings (userID, houseID, guests, dateFrom, dateTo)" +
                     "VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement pSt = bookCon.prepareStatement(insert);
+            pSt = bookCon.prepareStatement(insert);
             pSt.setInt(1, userId);
             pSt.setInt(2, entity.getHouseId());
             pSt.setInt(3, entity.getGuests());
@@ -52,13 +66,10 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (bookCon != null) {
-                try {
-                    bookCon.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser
+                    .getCloser()
+                    .closeConnection(bookCon)
+                    .closeStatement(pSt);
         }
     }
 
@@ -122,10 +133,14 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, rs);
         }
     }
 
+    /**
+     *  Returns a list of the specified user's bookings
+     */
     @Path("/getusersbookings")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -159,7 +174,7 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.getCloser().closeAll(con, pSt, rs);
         }
 
         ArrayList<BookedHouseBean> entities = new ArrayList<>();
@@ -186,7 +201,8 @@ public class BookingControl {
                 e.printStackTrace();
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             } finally {
-                ConnectionCloser.closeAll(con, pSt, rs);
+                ConnectionCloser.getCloser()
+                        .closeAll(con, pSt, rs);
             }
         }
 
@@ -195,6 +211,9 @@ public class BookingControl {
         return Response.ok(jsonString).build();
     }
 
+    /**
+     *  Deletes the booking specified by the booking id
+     */
     @Path("/delete/{bookingId}")
     @DELETE
     @Consumes(MediaType.TEXT_PLAIN)
@@ -221,7 +240,7 @@ public class BookingControl {
                 return Response.ok("{\"status\": " + Constants.BOOKING_NOT_EXPIRED + "}").build();
             }
 
-            ConnectionCloser.closeAll(null, pSt, rs);
+            ConnectionCloser.getCloser().closeAll(null, pSt, rs);
 
             query = "SELECT NULL FROM bookings WHERE bookingId = ? AND userID = ?";
             pSt = con.prepareStatement(query);
@@ -235,7 +254,8 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, rs);
         }
 
 
@@ -250,7 +270,8 @@ public class BookingControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, null);
         }
 
 

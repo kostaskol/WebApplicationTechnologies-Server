@@ -47,7 +47,7 @@ public class BlackList {
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         } finally {
-            ConnectionCloser.closeAll(checkCon, checkPst, checkRs);
+            ConnectionCloser.getCloser().closeAll(checkCon, checkPst, checkRs);
         }
         try {
             con = DataSource.getInstance().getConnection();
@@ -59,22 +59,18 @@ public class BlackList {
             pSt.execute();
 
             if (deletionTimer != null) {
-                System.out.println("The timer was already running");
                 if (deletionTimer.hasStopped()) {
                     // The deletion should run every TOKEN_EXPIRATION milliseconds
                     timer.schedule(deletionTimer, 0, Constants.EXPIRATION_TIME_ALL);
-                } else {
-                    System.out.println(" and was not stopped");
                 }
             } else {
-                System.out.println("Created a new timer");
                 timer = new Timer();
                 deletionTimer = new TokenDeletionTimer(timer);
                 timer.schedule(deletionTimer, 0, Constants.EXPIRATION_TIME_ALL);
             }
 
         } finally {
-            ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser.getCloser().closeAll(con, pSt, null);
         }
     }
 
@@ -90,7 +86,7 @@ public class BlackList {
             rs = pSt.executeQuery();
             return rs.next();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.getCloser().closeAll(con, pSt, rs);
         }
     }
 }

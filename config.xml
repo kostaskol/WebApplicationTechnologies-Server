@@ -2,7 +2,7 @@
 <cfg>
     <database>
         <driver-class>com.mysql.jdbc.Driver</driver-class>
-        <jdbc-url>jdbc:mysql://localhost:3306/airbnb_t</jdbc-url>
+        <jdbc-url>jdbc:mysql://localhost:3306/airbnb</jdbc-url>
         <username>root</username>
         <passwd>dataKostas&amp;&amp;base112</passwd>
     </database>

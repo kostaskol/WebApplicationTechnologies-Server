@@ -27,49 +27,12 @@ import java.util.Properties;
 /**
  * Handles all operations for the admin
  * Paths:
- *  /verifytoken: Verifies the given token (Used to verify the admin cookie)
- *  /getusers: Returns an array of JSON of the basic info of all the users
- *  /alteruser/{userId}: Consumes a JSON object and alters the given user
- *  /approve/{userId}: Approved the given user
- *  /get/{userId}: Returns a JSON object of the full info of the given user
- *  /rawexport: Returns an XML string with all the data from the database
- *      Format: <Airbnb>
- *                  <Users>
- *                      <User>
- *                          <UserID>{userId}</UserID>
- *                          ...
- *                      </User>
- *                      ...
- *                  </Users>
- *                  <Houses>
- *                      <House>
- *                          <HouseID>{houseId}</HouseID>
- *                          ...
- *                      </House>
- *                      ...
- *                  </Houses>
- *                  <Comments>
- *                      <Comment>
- *                          <CommentID>{commentId}</CommentID>
- *                          ...
- *                      </Comment>
- *                      ...
- *                  </Comments>
- *                  <Messages>
- *                      <Message>
- *                          <MessageID>{messageId}</MessageID>
- *                          ...
- *                      </Message>
- *                      ...
- *                  </Messages>
- *                  <Bookings>
- *                      <Booking>
- *                          <BookingID>{bookingId}</BookingID>
- *                          ...
- *                      </Booking>
- *                      ...
- *                  </Bookings>
- *              </Airbnb>
+ *  /verifytoken
+ *  /getusers
+ *  /alteruser/{userId}
+ *  /approve/{userId}
+ *  /get/{userId}
+ *  /rawexport
  *  @author Kostas Kolivas
  *  @version 1.0
  */
@@ -85,15 +48,17 @@ public class AdminControl {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response verifyToken(String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
-        System.out.println("Token = " + token);
-        try {
-            auth.authenticate();
-            return Response.ok().build();
-        } catch (Exception e) {
+        if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
+        } else {
+            return Response.ok().build();
         }
     }
 
+    /**
+     *  Tries to match the provided credentials against the database
+     *  and returns the corresponding response
+     */
     @Path("/login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -106,11 +71,9 @@ public class AdminControl {
             String query = "SELECT userID, passwd FROM users WHERE email = ? AND accType " +
                     "LIKE \"1%\" LIMIT 1";
             pSt = con.prepareStatement(query);
-            pSt.setString(1, bean.getMail());
-            System.out.println("PSt to string = " + pSt.toString());
+            pSt.setString(1, bean.getEmail());
             rs = pSt.executeQuery();
             if (rs.next()) {
-                System.out.println("Got next");
                 PasswordVerifier pv = new PasswordVerifier(rs.getString("passwd"), true);
                 if (!pv.verify(bean.getPasswd())) {
                     return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -126,20 +89,18 @@ public class AdminControl {
 
                 }
             } else {
-                System.out.println("No next");
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.getCloser().closeAll(con, pSt, rs);
         }
     }
 
     /**
      * Returns a list of all the users in the database (Minified)
-     * @param token
      */
     @Path("/getusers")
     @POST
@@ -147,11 +108,12 @@ public class AdminControl {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApprove(String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
-        try {
-            auth.authenticate();
-        } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!auth.authenticate()) {
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
         }
+
         Connection con = null;
         Statement st = null;
         ResultSet rs = null;
@@ -179,6 +141,7 @@ public class AdminControl {
                 users.add(user);
             }
 
+            // Turn the users to a JSON string and return it
             Gson gson = new Gson();
             String json = gson.toJson(users);
             return Response.ok(json).build();
@@ -186,15 +149,13 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con,st, rs);
+            ConnectionCloser.getCloser().closeAll(con,st, rs);
         }
     }
 
     /**
      * Alters the given user (specified by the userId)
      * according to the given JSON string
-     * @param userId
-     * @param json
      */
     @Path("/alteruser/{userId}")
     @POST
@@ -204,10 +165,10 @@ public class AdminControl {
         Gson gson = new Gson();
         UserBean entity = gson.fromJson(json, UserBean.class);
         Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_ADMIN);
-        try {
-            auth.authenticate();
-        } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!auth.authenticate()) {
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
         }
 
         Connection con = null;
@@ -238,14 +199,15 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser
+                    .getCloser()
+                    .closeConnection(con)
+                    .closeStatement(pSt);
         }
     }
 
     /**
      * Approves the specified userID for renting their house
-     * @param userId
-     * @param token
      */
     @Path("/approve/{userId}")
     @POST
@@ -253,11 +215,10 @@ public class AdminControl {
     public Response approve(@PathParam(value="userId") int userId,
                             String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
-        try {
-            auth.authenticate();
-        } catch (Exception e) {
+        if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
+
         Connection con = null;
         try {
             con = DataSource.getInstance().getConnection();
@@ -270,6 +231,7 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
+            ConnectionCloser.getCloser();
             if (con != null) {
                 try {
                     con.close();
@@ -282,8 +244,6 @@ public class AdminControl {
 
     /**
      * Returns the full info about the specified user
-     * @param userId
-     * @param token
      */
     @Path("/get/{userId}")
     @POST
@@ -292,11 +252,12 @@ public class AdminControl {
     public Response getUser(@PathParam(value="userId") int userId,
                             String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
-        try {
-            auth.authenticate();
-        } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!auth.authenticate()) {
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
         }
+
         Connection con = null;
         PreparedStatement pSt = null;
         ResultSet rs = null;
@@ -338,7 +299,8 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, rs);
         }
 
     }
@@ -346,7 +308,6 @@ public class AdminControl {
 
     /**
      * Returns a list of only the users that have not yet been approved
-     * @param token
      */
     @Path("/getapprovallist")
     @POST
@@ -354,9 +315,7 @@ public class AdminControl {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApprovalList(String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
-        try {
-            auth.authenticate();
-        } catch (Exception e) {
+        if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
@@ -393,7 +352,8 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, st, rs);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, st, rs);
         }
     }
 
@@ -402,24 +362,23 @@ public class AdminControl {
      * file is created in the filesystem and a token is issued with an expiration time
      * of 2 seconds. The client then sends a GET request (through the URL) to /admin/getxml
      * supplying the previously issued token.
-     * @param token
      */
     @Path("/rawexport")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
     public Response exportRaw(String token) {
-        System.out.println("Authenticating token: " + token);
         Authenticator auth = new Authenticator(token, Constants.TYPE_ADMIN);
         if (!auth.authenticate()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        Connection con = null;
-        ResultSet users = null,
-                houses,
-                comments = null,
-                bookings = null,
-                messages = null;
+        Connection con      = null;
+
+        ResultSet users     = null,
+                houses      = null,
+                comments    = null,
+                bookings    = null,
+                messages    = null;
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT * FROM users";
@@ -466,25 +425,71 @@ public class AdminControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            new ConnectionCloser().closeCon(con)
-                    .closeRs(users)
-                    .closeRs(comments)
-                    .closeRs(bookings)
-                    .closeRs(messages);
+            ConnectionCloser.getCloser()
+                    .closeConnection(con)
+                    .closeResultSet(users)
+                    .closeResultSet(houses)
+                    .closeResultSet(comments)
+                    .closeResultSet(bookings)
+                    .closeResultSet(messages);
         }
     }
 
     /**
      *  Authenticates the provided token and
      *  returns the xml file as an output stream.
-     *  Also deletes the file after it has been successfully sent
+     *  Also deletes the file after it has been successfully sent.
+     *  Format:
+     *      <pre>
+     *      {@code
+     *          <xml>
+     *              <Airbnb>
+     *                  <Users>
+     *                      <User>
+     *                          <UserID>{userId}</UserID>
+     *                          ...
+     *                      </User>
+     *                      ...
+     *                  </Users>
+     *                  <Houses>
+     *                      <House>
+     *                          <HouseID>{houseId}</HouseID>
+     *                          ...
+     *                      </House>
+     *                      ...
+     *                  </Houses>
+     *                  <Comments>
+     *                      <Comment>
+     *                          <CommentID>{commentId}</CommentID>
+     *                          ...
+     *                      </Comment>
+     *                      ...
+     *                  </Comments>
+     *                  &Messages>
+     *                      <Message>
+     *                          <MessageID>{messageId}</MessageID>
+     *                          ...
+     *                      </Message>
+     *                      ...
+     *                  </Messages>
+     *                  <Bookings>
+     *                      <Booking>
+     *                          <BookingID>{bookingId}</BookingID>
+     *                          ...
+     *                      </Booking>
+     *                      ...
+     *                  </Bookings>
+     *              </Airbnb>
+     *          </xml>
+     *      }
+     *
+     *         </pre>
      * @param t
      */
     @Path("/getxml")
     @GET
     @Produces(MediaType.APPLICATION_XML)
     public Response getXml(@QueryParam("t") String t) {
-        System.out.println("Token = " + t);
         Authenticator auth = new Authenticator(t);
         if (!auth.authenticateExport()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();

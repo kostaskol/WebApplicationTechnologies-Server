@@ -1,7 +1,6 @@
 package com.WAT.airbnb.util;
 
 import javax.validation.constraints.NotNull;
-import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -13,13 +12,13 @@ import java.util.Map;
  *  @author Kostas Kolivas
  *  @version 1.0
  */
-public class MyVector {
+public class Vector {
     private double[] values;
     private boolean[] bValues;
     private int id;
     private int length;
 
-    public MyVector(int id, int length, boolean zero) {
+    public Vector(int id, int length, boolean zero) {
         this.bValues = null;
         this.id = id;
         this.length = length;
@@ -29,14 +28,14 @@ public class MyVector {
         }
     }
 
-    public MyVector(@NotNull double[] v, int id) {
+    public Vector(@NotNull double[] v, int id) {
         this.bValues = null;
         this.values = v;
         this.id = id;
         this.length = values.length;
     }
 
-    public MyVector(Double[] v, int id) {
+    public Vector(Double[] v, int id) {
         this.bValues = null;
         this.length = v.length;
         this.values = new double[this.length];
@@ -46,7 +45,7 @@ public class MyVector {
         this.id = id;
     }
 
-    public MyVector(ArrayList<Double> v, int id) {
+    public Vector(ArrayList<Double> v, int id) {
         this.bValues = null;
         this.length = v.size();
         this.values = new double[this.length];
@@ -56,14 +55,14 @@ public class MyVector {
         this.id = id;
     }
 
-    public MyVector(boolean[] v, int id) {
+    public Vector(boolean[] v, int id) {
         this.values = null;
         this.bValues = v;
         this.id = id;
         this.length = bValues.length;
     }
 
-    public MyVector(int id, int length, boolean zero, int ph) {
+    public Vector(int id, int length, boolean zero, int ph) {
         this.id = id;
         this.length = length;
         this.bValues = new boolean[length];
@@ -72,13 +71,13 @@ public class MyVector {
             this.bValues[i] = false;
     }
 
-    public MyVector(@NotNull double[] v) {
+    public Vector(@NotNull double[] v) {
         this.bValues = null;
         this.values = v;
         this.length = values.length;
     }
 
-    public Double dot(@NotNull MyVector other) {
+    public Double dot(@NotNull Vector other) {
         if (this.values == null) return null;
         if (this.length != other.length) return null;
         double sum = 0d;
@@ -90,7 +89,7 @@ public class MyVector {
 
     public int size() { return this.length; }
 
-    public Double cosineSim(@NotNull MyVector other, int ph) {
+    public Double cosineSim(@NotNull Vector other, int ph) {
         if (this.bValues == null) return null;
         if (this.length != other.length) return null;
         Double sim = this.dot(other, 0);
@@ -107,7 +106,7 @@ public class MyVector {
         return sim / (sqrt1 * sqrt2);
     }
 
-    public Double dot(@NotNull MyVector other, int ph) {
+    public Double dot(@NotNull Vector other, int ph) {
         if (this.bValues == null) return null;
         if (this.length != other.length) return null;
         double sum = 0d;
@@ -117,7 +116,7 @@ public class MyVector {
         return sum;
     }
 
-    public Double cosineSim(@NotNull MyVector other) {
+    public Double cosineSim(@NotNull Vector other) {
         // A * B / (sqrt(sum(Ai ^ 2)) * sqrt(sum(Bi ^ 2)))
 //        System.out.println("Computing cosine sim");
         if (this.values == null) return null;
@@ -147,7 +146,7 @@ public class MyVector {
         return this.values[index];
     }
 
-    public Boolean get(int index, int ph) throws IllegalArgumentException {
+    public Boolean getB(int index) throws IllegalArgumentException {
         if (this.bValues == null) return null;
         if (index >= length) throw new IllegalArgumentException("Index out of range");
         return this.bValues[index];

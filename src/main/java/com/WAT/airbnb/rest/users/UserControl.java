@@ -3,8 +3,12 @@ package com.WAT.airbnb.rest.users;
 import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.*;
 import com.WAT.airbnb.rest.Authenticator;
-import com.WAT.airbnb.rest.entities.*;
-import com.WAT.airbnb.rest.jacksonClasses.authentication.LoginBean;
+import com.WAT.airbnb.rest.entities.UserCredentialBean;
+import com.WAT.airbnb.rest.entities.SignUpBean;
+import com.WAT.airbnb.rest.entities.PassResetBean;
+import com.WAT.airbnb.rest.entities.UserBean;
+import com.WAT.airbnb.rest.entities.UserUpdateBean;
+import com.WAT.airbnb.rest.entities.ChangeMailBean;
 import com.WAT.airbnb.util.XmlParser;
 import com.WAT.airbnb.util.blacklist.BlackList;
 import com.WAT.airbnb.util.helpers.ConnectionCloser;
@@ -33,22 +37,37 @@ import java.util.Base64;
 /**
  * Handles all user functionality
  * Paths:
- *  /signup: Consumes a JSON and inserts the data
+ *  /signup
+ *  /login
+ *  /passreset
+ *  /getuser/{userId}
+ *  /getuser
+ *  /updateuser
+ *  /verifytoken
+ *  /changemail
+ *  /updateprofilepicture
  */
 @Path("/user")
 public class UserControl {
 
+    /**
+     * Simple inner class that passes around a small part of a user's information
+     */
     private class UserInfo {
         int id;
         int accountType;
     }
 
+    /**
+     * Inserts the user into the database
+     */
     @Path("/signup")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response signUp(SignUpBean bean) {
         PasswordVerifier pass;
+        // Hash the provided password and store the hash into the database
         try {
             pass = new PasswordVerifier(bean.getPasswd(), false);
             pass.hash();
@@ -57,37 +76,34 @@ public class UserControl {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
+        Connection con = null;
+        PreparedStatement pSt = null;
         try {
-            Connection con = DataSource.getInstance().getConnection();
-            String query = "insert into users (" +
-                    "email, passwd, accType, firstName, lastName, phoneNumber, dateOfBirth, approved" +
-                    ") values (?, ?, ?, ?, ?, ?, ?, false)";
-            System.out.println("Email: " + bean.getEmail());
-            PreparedStatement pStatement = con.prepareStatement(query);
-            pStatement.setString(1, bean.getEmail());
-            pStatement.setString(2, pass.getHash());
-            pStatement.setString(3, bean.getAccountType());
-            pStatement.setString(4, bean.getFirstName());
-            pStatement.setString(5, bean.getLastName());
-            pStatement.setString(6, bean.getPhoneNumber());
+            con = DataSource.getInstance().getConnection();
+            String query = "insert into users " +
+                    "(email, passwd, accType, firstName, lastName, " +
+                    "phoneNumber, dateOfBirth, approved) " +
+                    "values (?, ?, ?, ?, ?, ?, ?, false)";
+            pSt = con.prepareStatement(query);
+            pSt.setString(1, bean.getEmail());
+            pSt.setString(2, pass.getHash());
+            pSt.setString(3, bean.getAccountType());
+            pSt.setString(4, bean.getFirstName());
+            pSt.setString(5, bean.getLastName());
+            pSt.setString(6, bean.getPhoneNumber());
             Date sqlDate = DateHelper.stringToDate(bean.getDateOfBirth());
-            pStatement.setDate(7, sqlDate);
-            pStatement.execute();
+            pSt.setDate(7, sqlDate);
+            pSt.execute();
             return Response.ok().build();
         } catch (SQLException sqle) {
             sqle.printStackTrace();
             if (sqle.getErrorCode() == 1062) {
                 XmlParser parser = new XmlParser(Constants.DIR + "/Constants.xml");
                 Integer code = parser.getCode("signup-codes", "mail-exists");
-                if (code == null) {
-                    System.out.println("Code is null");
-                } else {
-                    int tmp = code;
-                    System.out.println("Code = " + code);
+                if (code != null) {
                     JsonObject object = Json.createObjectBuilder()
-                            .add("err-code", tmp)
+                            .add("err-code", code)
                             .build();
-                    System.out.println("Returning response " + object);
                     return Response.ok(object.toString()).build();
                 }
 
@@ -95,32 +111,41 @@ public class UserControl {
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.getCloser()
+                    .closeConnection(con)
+                    .closeStatement(pSt);
         }
     }
 
+    /**
+     * Tries to match the given credentials against the database and returns according results
+     */
     @Path("/login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response authenticate(LoginBean object) {
+    public Response authenticate(UserCredentialBean bean) {
         try {
-            UserInfo info = authenticateAgainstDB(object.getEmail(), object.getPasswd());
+            UserInfo info = authenticateAgainstDB(bean.getEmail(), bean.getPasswd());
             if (info == null) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
             String token = issueToken(info);
 
-            String response = Json.createObjectBuilder()
-                    .add("token", token).build().toString();
+            String response = "{\"token\": " + token + "}";
             return Response.ok(response).build();
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * Resets the user's current password
+     */
     @Path("/passreset")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -138,10 +163,11 @@ public class UserControl {
         }
 
         Connection con = null;
+        PreparedStatement pSt = null;
         try {
             con = DataSource.getInstance().getConnection();
             String update = "UPDATE users SET passwd = ? WHERE email = ?";
-            PreparedStatement pSt = con.prepareStatement(update);
+            pSt = con.prepareStatement(update);
             pSt.setString(1, pass.getHash());
             pSt.setString(2, resetEntity.getEmail());
             pSt.execute();
@@ -150,16 +176,15 @@ public class UserControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.getCloser()
+                    .closeConnection(con)
+                    .closeStatement(pSt);
         }
     }
 
+    /**
+     * @return The specified user's public information
+     */
     @Path("/getuser/{userId}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -169,7 +194,10 @@ public class UserControl {
         ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT email, firstName, lastName, country, bio, pictureURL FROM users WHERE userID = ? LIMIT 1";
+            String query = "SELECT email, firstName, lastName, country, bio, pictureURL " +
+                    "FROM users " +
+                    "WHERE userID = ? " +
+                    "LIMIT 1";
             pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
             rs = pSt.executeQuery();
@@ -188,10 +216,14 @@ public class UserControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, rs);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, rs);
         }
     }
 
+    /**
+     * @return The current user's information
+     */
     @Path("getuser")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -199,14 +231,13 @@ public class UserControl {
     public Response getUser(String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
 
-        try {
-            auth.authenticate();
-        } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+        if (!auth.authenticate()) {
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
         }
 
         int id = auth.getId();
-        Connection con = null;
 
         boolean enoughData;
         Connection dCon = null;
@@ -218,27 +249,24 @@ public class UserControl {
             dPSt = dCon.prepareStatement(query);
             dPSt.setInt(1, id);
             dRs = dPSt.executeQuery();
-            if (dRs.next()) {
-                if (dRs.getInt("c") > 5) {
-                    enoughData = true;
-                } else {
-                    enoughData = false;
-                }
-            } else {
-                enoughData = false;
-            }
+
+            enoughData = dRs.next() && (dRs.getInt("c") > 5);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(dCon, dPSt, dRs);
+            ConnectionCloser.getCloser()
+                    .closeAll(dCon, dPSt, dRs);
         }
+        Connection con = null;
+        PreparedStatement pSt = null;
+        ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT accType, approved, firstName, lastName, phoneNumber, bio, pictureURL FROM users WHERE userID = ?";
-            PreparedStatement pStatement = con.prepareStatement(query);
-            pStatement.setInt(1, id);
-            ResultSet rs = pStatement.executeQuery();
+            pSt = con.prepareStatement(query);
+            pSt.setInt(1, id);
+            rs = pSt.executeQuery();
             if (!rs.next()) {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
@@ -272,21 +300,16 @@ public class UserControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, rs);
         }
     }
+
 
     @Path("/updateuser")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateUser(String json) {
-        System.out.println(json);
         Gson gson = new Gson();
         UserUpdateBean entity = gson.fromJson(json, UserUpdateBean.class);
         Authenticator auth = new Authenticator(entity.getToken(), Constants.TYPE_USER);
@@ -311,10 +334,14 @@ public class UserControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, null);
         }
     }
 
+    /**
+     * Verifies the provided token and returns accordingly
+     */
     @Path("/verifytoken")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -326,6 +353,9 @@ public class UserControl {
         return Response.ok().build();
     }
 
+    /**
+     * Changes the user's email to the provided one
+     */
     @Path("/changemail")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -340,10 +370,11 @@ public class UserControl {
         int userId = auth.getId();
 
         Connection con = null;
+        PreparedStatement pSt = null;
         try {
             con = DataSource.getInstance().getConnection();
             String update = "UPDATE users SET email = ? WHERE userID = ?";
-            PreparedStatement pSt = con.prepareStatement(update);
+            pSt = con.prepareStatement(update);
             pSt.setString(1, entity.getNewMail());
             pSt.setInt(2, userId);
             pSt.execute();
@@ -352,17 +383,16 @@ public class UserControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.getCloser()
+                    .closeConnection(con)
+                    .closeStatement(pSt);
         }
     }
 
-    @Path("/updateprofile")
+    /**
+     * Updates the user's profile picture
+     */
+    @Path("/updateprofilepicture")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response updateProfile(@FormDataParam("file") InputStream uploadedInputStream,
@@ -370,7 +400,9 @@ public class UserControl {
                                   @FormDataParam("token") String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
         if (!auth.authenticate()) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
         }
 
         int userId = auth.getId();
@@ -378,7 +410,7 @@ public class UserControl {
         PreparedStatement pSt = null;
         try {
             String localUrl = FileHelper.saveFile(uploadedInputStream, userId, fileDetails,
-                    true, false);
+                    true);
             con = DataSource.getInstance().getConnection();
             String update = "UPDATE users SET pictureURL = ? WHERE userID = ?";
             pSt = con.prepareStatement(update);
@@ -386,18 +418,23 @@ public class UserControl {
             pSt.setInt(2, userId);
             pSt.execute();
             return Response.ok().build();
-        } catch (SQLException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            ConnectionCloser.closeAll(con, pSt, null);
+            ConnectionCloser.getCloser()
+                    .closeAll(con, pSt, null);
         }
     }
 
+    /**
+     * Invalidates the provided token
+     */
     @Path("/invalidate")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public Response invalidateToken(String token) {
+        // Adds the token to the blacklist
         BlackList blackList = BlackList.getInstance();
         try {
             blackList.addToList(token, Constants.TYPE_USER);
@@ -408,28 +445,33 @@ public class UserControl {
         return Response.ok().build();
     }
 
+    /**
+     *
+     * @param email Email to be checked
+     * @param passwd User provided password to be checked
+     * @return A UserInfo object on successful authentication null on failure
+     * @throws Exception
+     */
     private UserInfo authenticateAgainstDB(String email, String passwd) throws Exception {
         Connection con = null;
+        PreparedStatement pSt = null;
         ResultSet rs = null;
-        System.out.println("Authenticating user");
         UserInfo info = new UserInfo();
         try {
             con = DataSource.getInstance().getConnection();
 
             String queryString = "SELECT * FROM users WHERE email = ? LIMIT 1";
-            PreparedStatement query = con.prepareStatement(queryString);
+            pSt = con.prepareStatement(queryString);
 
-            query.setString(1, email);
-            rs = query.executeQuery();
+            pSt.setString(1, email);
+            rs = pSt.executeQuery();
             if (!rs.next()) {
-                System.out.println("No results");
                 return null;
             } else {
-                System.out.println(rs.getString("passwd"));
+                // Tries to verify the hashed password
                 PasswordVerifier pass = new PasswordVerifier(rs.getString("passwd"), true);
                 try {
                     if (pass.verify(passwd)) {
-                        System.out.println("Verified");
                         info.id = rs.getInt("userID");
                         String accType = rs.getString("accType");
                         if (accType.charAt(Constants.ADMIN_OFFS) == '1') {
@@ -441,7 +483,6 @@ public class UserControl {
                         }
                         return info;
                     } else {
-                        System.out.println("Not verified");
                         return null;
                     }
                 } catch (RuntimeException e) {
@@ -454,38 +495,26 @@ public class UserControl {
             e.printStackTrace();
             return null;
         }finally {
-            ConnectionCloser.closeAll(con, null, rs);
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.getCloser()
+                .closeConnection(con)
+                .closeResultSet(rs);
         }
     }
 
+    /**
+     * Issues a JWT token to the provided userID
+     * @return The JWT token
+     */
     private String issueToken(UserInfo info) {
-        System.out.println("Building token");
 
         JwtBuilder builder = Jwts.builder()
                 .setSubject("users/" + info.id)
                 .claim("id", String.valueOf(info.id));
         long expMillis;
-        System.out.println(info.accountType);
         switch (info.accountType) {
             case Constants.TYPE_ADMIN:
-                System.out.println("Admin has logged in");
                 builder.claim("scope", Constants.SCOPE_ADMINS);
-                // For admins, we set a 5 minute reset on the token
+                // For admins, we set a 3 minute reset on the token
                 expMillis = System.currentTimeMillis() + Constants.ADMIN_EXPIRATION_TIME;
                 break;
             case Constants.TYPE_RENTER:

@@ -11,7 +11,11 @@ import java.sql.Statement;
  *  @version 1.0
  */
 public class ConnectionCloser {
-    public static void closeAll(Connection con, Statement statement, ResultSet rs) {
+    final private static ConnectionCloser con = new ConnectionCloser();
+
+    private ConnectionCloser() {}
+
+    public void closeAll(Connection con, Statement statement, ResultSet rs) {
         if (con != null) {
             try {
                 con.close();
@@ -38,7 +42,11 @@ public class ConnectionCloser {
         }
     }
 
-    public ConnectionCloser closeCon(Connection con) {
+    public static ConnectionCloser getCloser() {
+        return con;
+    }
+
+    public ConnectionCloser closeConnection(Connection con) {
         if (con != null) {
             try {
                 con.close();
@@ -50,7 +58,7 @@ public class ConnectionCloser {
         return this;
     }
 
-    public ConnectionCloser closeSt(Statement st) {
+    public ConnectionCloser closeStatement(Statement st) {
         if (st != null) {
             try {
                 st.close();
@@ -62,7 +70,7 @@ public class ConnectionCloser {
         return this;
     }
 
-    public ConnectionCloser closeRs(ResultSet rs) {
+    public ConnectionCloser closeResultSet(ResultSet rs) {
         if (rs != null) {
             try {
                 rs.close();

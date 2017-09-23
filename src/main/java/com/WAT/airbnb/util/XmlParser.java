@@ -80,15 +80,8 @@ public class XmlParser {
         Document doc = null;
         try {
             doc = parseXML();
-        } catch (ParserConfigurationException pce) {
-            System.out.println("Parser Configuration exception");
-            pce.printStackTrace();
-        } catch (SAXException se) {
-            System.out.println("SAX Exception");
-            se.printStackTrace();
-        } catch (IOException ioe) {
-            System.out.println("IO Exception");
-            ioe.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         if (doc != null) {
@@ -109,7 +102,6 @@ public class XmlParser {
 
             return null;
         } else {
-            System.out.println("Doc is null");
             return null;
         }
     }

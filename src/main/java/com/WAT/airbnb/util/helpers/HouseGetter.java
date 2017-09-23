@@ -36,7 +36,7 @@ public class HouseGetter {
             if (picRs.next()) {
                 entity.setPicture(FileHelper.getFileAsString(picRs.getString("thumbURL")));
             }
-            ConnectionCloser.closeAll(picCon, picSt, null);
+            ConnectionCloser.getCloser().closeAll(picCon, picSt, null);
             entities.add(entity);
         }
         return entities;

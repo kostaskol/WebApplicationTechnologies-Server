@@ -4,6 +4,7 @@ import com.WAT.airbnb.db.DataSource;
 import com.WAT.airbnb.etc.Constants;
 import com.WAT.airbnb.rest.Authenticator;
 import com.WAT.airbnb.rest.entities.CommentBean;
+import com.WAT.airbnb.util.helpers.ConnectionCloser;
 import com.google.gson.Gson;
 
 import javax.ws.rs.*;
@@ -17,8 +18,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles all comment operations
+ * Paths:
+ * /new/{houseId}
+ * /edit/{commentId} -- Not implemented client side
+ * /get/{houseId}
+ * @author Kostas Kolivas
+ * @version 1.0
+ */
 @Path("/comment")
 public class CommentControl {
+
+    /**
+     *  Creates a new comment for the specified house
+     */
     @Path("/new/{houseId}")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -35,14 +49,15 @@ public class CommentControl {
 
         int userId = auth.getId();
         Connection con = null;
-
+        PreparedStatement pSt = null;
+        ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT userID FROM comments WHERE userID = ? and houseID = ? LIMIT 1";
-            PreparedStatement pSt = con.prepareStatement(query);
+            pSt = con.prepareStatement(query);
             pSt.setInt(1, userId);
             pSt.setInt(2, houseId);
-            ResultSet rs = pSt.executeQuery();
+            rs = pSt.executeQuery();
             if (rs.next()) {
                 return Response.ok("{\"status\": \"commented\"").build();
             }
@@ -58,9 +73,16 @@ public class CommentControl {
         } catch (IOException | SQLException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            ConnectionCloser.getCloser().closeAll(con, pSt, rs);
         }
     }
 
+
+    /**
+     * ::- Not Implemented client - side -::
+     * Allowed the user to edit their comment
+     */
     @Path("/edit/{commentId}")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -90,16 +112,20 @@ public class CommentControl {
         }
     }
 
+    /**
+     * Returns a list of the house's comments
+     */
     @Path("/get/{houseId}")
     @GET
     public Response getAll(@PathParam("houseId") int houseId) {
         Connection con = null;
+        PreparedStatement pSt = null;
         ResultSet rs = null;
         List<CommentBean> entities = new ArrayList<>();
         try {
             con = DataSource.getInstance().getConnection();
             String query = "SELECT * FROM comments WHERE houseID = ?";
-            PreparedStatement pSt = con.prepareStatement(query);
+            pSt = con.prepareStatement(query);
             pSt.setInt(1, houseId);
             rs = pSt.executeQuery();
             while (rs.next()) {
@@ -110,25 +136,24 @@ public class CommentControl {
                 comment.setComment(rs.getString("comm"));
                 comment.setRating(rs.getFloat("rating"));
 
-                Connection nameCon = DataSource.getInstance().getConnection();
+                Connection nameCon = null;
+                PreparedStatement nameSt = null;
+                ResultSet nameRs = null;
                 query = "SELECT firstName, lastName FROM users WHERE userID = ? LIMIT 1";
-                pSt = nameCon.prepareStatement(query);
-                pSt.setInt(1, rs.getInt("userID"));
-                ResultSet nameRs = pSt.executeQuery();
-                if (nameRs.next()) {
-                    comment.setUserFName(nameRs.getString("firstName"));
-                    comment.setUserLName(nameRs.getString("lastName"));
-                }
                 try {
-                    nameCon.close();
-                } catch (SQLException e) {
+                    nameCon = DataSource.getInstance().getConnection();
+                    nameSt = nameCon.prepareStatement(query);
+                    nameSt.setInt(1, rs.getInt("userID"));
+                    nameRs = nameSt.executeQuery();
+                    if (nameRs.next()) {
+                        comment.setUserFName(nameRs.getString("firstName"));
+                        comment.setUserLName(nameRs.getString("lastName"));
+                    }
+                } catch (SQLException | IOException e) {
                     e.printStackTrace();
-                }
-
-                try {
-                    nameRs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                } finally {
+                    ConnectionCloser.getCloser().closeAll(nameCon, nameSt, nameRs);
                 }
 
                 entities.add(comment);
@@ -142,21 +167,7 @@ public class CommentControl {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            ConnectionCloser.getCloser().closeAll(con, pSt, rs);
         }
     }
 }

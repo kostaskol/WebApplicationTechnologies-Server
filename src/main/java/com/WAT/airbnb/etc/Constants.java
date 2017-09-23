@@ -52,5 +52,6 @@ public class Constants {
     // NNCF recommendation constants
     public static final int K = 4;
     public static final int MAX_NEIGHBOURS = 16;
-    public static final int NOT_ENOUGH_DATA = 255;
+    private static final int NOT_ENOUGH_DATA = 255;
+    public static final String NOT_ENOUGH_DATA_RESP = "{\"status\": " + NOT_ENOUGH_DATA + "}";
 }
