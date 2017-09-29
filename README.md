@@ -1,29 +1,45 @@
-<h1>AirBnB (Clone) for Web Application Technology (UoA:DIT)</h1>
-<h2>Functionality</h2>
-<ul>
-	<li>The web server:</li>	
-	<ul>
-		<li>Uses a token based authentication system</li>
-    		<li></li>
-	</ul>
-    
-    
-    
-    
-    
-</ul>
+#AirBnB (Clone) for Web Application Technology (UoA:DIT)
+## Server Side
+* ### Functionality
+	* RESTful Web Service that utilises the Jersey JAX-RS implementation. 
+	* It uses a MySQL Database to store the data. More information can be found in the [Database](#db) section of this file.
+	
+* ### Implementation
+	* Due to the size of the application, no implementation details are written here. These can be found in the form of JavaDoc in {ROOT}/jd/index.html
+	
+* ### <a name="db"></a> Database
+	* The database is designed to be in 3NF, meaning that no redundant data is held in any of the tables and each reference to existing data is in the form of foreign keys.
+	* Accesses to the database are managed by Apache Commons' Connection pooling.
+	* #### <a name="tables"> </a> Tables
+	
+	|Name|Usage|Key(s)|Foreign Keys| Additional Comments|
+	|--------|--------|--------|-----------------|-----------------------------|
+	|bookings    | Stores users' bookings|bookingID|userID(users), houseID(houses)||
+	|comments | Stores each house's comments|commentID|userID(users), houseID(house)| This table is especially large. Thus, it's better to remove that section when exporting to XML|
+	|houses      | Stores data about each registered house |houseID|ownerID(users)||
+	|searches   | Stores users' searches|searchID|userID(users), houseID(houses)|When we don't have enough information on a user's preferences, we keep track of house pages they've visited (later used in the sparse NNCF algorithm|
+	|invalidTokens| Stores invalidated tokens| tokenID | None | When a user signs out, we add their token to the blacklist and consider it invalid|
+	|messages| Stores user to user messages | messageID | senderID(users), receiverID(users)||
+	| photographs | Intermediate table that matches houses to photographs | photoID | houseID(houses)| |
+	| users | Stores user information | userID | None | Each user's password is hashed and stored in the database
 
-<h2>Third party libraries used:</h2>
 
-|Library|Version | Usage|Extra comments|
-|------|-----|-----|------|
-|[Jersey](http://jersey.github.io/)|2.26-b09|The JAX-RS implementation of choice | |
-|[MySQLConnector](https://dev.mysql.com/downloads/connector/j/5.1.html|5.1.6|Connection with the MySQL Database| |
-|[Apache Commons Pool](https://commons.apache.org/proper/commons-pool/)|1.4|Database Connection Pooling| Used instead of a JPA implementation| |
-|[Jersey Media Json-Jackson](http://jersey.github.io)|2.26-b07|Json Writer for jersey| |
-|[Jackson](https://github.com/FasterXML/jackson)|2.9.0.pr4|Java JSON support| |
-|[Json Web Token (JJWT)](https://jwt.io/)|0.7.0| Web Token Generator - Validator| |
-|[Gson](https://sites.google.com/site/gson/)|2.8.1|Google's JSON to POJO converter| |
-|[Jersey Media Multipart](jersey.github.io)|2.17|Picture Uploads| |
-| [James Murty's XMLBuilder](http://jamesmurty.com/2008/12/14/xmlbuilder-easily-build-xml-docs-in-java/)| 1.1 | Raw export of the database to XML| |
-|[Spring Framework Security](https://projects.spring.io/spring-security/)| 3.1.0.RELEASE | Password hashing |
+
+* ###Third party libraries used:
+
+	|Library|Version | Usage|Extra comments|
+	|------|-----|-----|------|
+	|[Jersey](http://jersey.github.io/)|2.26-b09|The JAX-RS implementation of choice | |
+	|[MySQLConnector](https://dev.mysql.com/downloads/connector/j/5.1.html)|5.1.6|Connection with the MySQL Database| |
+	|[Apache Commons Pool](https://commons.apache.org/proper/commons-pool/)|1.4|Database Connection Pooling| Used instead of a JPA implementation| |
+	|[Jersey Media Json-Jackson](http://jersey.github.io)|2.26-b07|Json Writer for jersey| |
+	|[Jackson](https://github.com/FasterXML/jackson)|2.9.0.pr4|Java JSON support| |
+	|[Json Web Token (JJWT)](https://jwt.io/)|0.7.0| Web Token Generator - Validator| |
+	|[Gson](https://sites.google.com/site/gson/)|2.8.1|Google's JSON to POJO converter| |
+	|[Jersey Media Multipart](jersey.github.io)|2.17|Picture Uploads| |
+	| [James Murty's XMLBuilder](http://jamesmurty.com/2008/12/14/xmlbuilder-easily-build-xml-docs-in-java/)| 1.1 | Raw export of the database to XML| |
+	|[Spring Framework Security](https://projects.spring.io/spring-security/)| 3.1.0.RELEASE | Password hashing |
+	|[James Murty's XMLBuilder](http://jamesmurty.com/2008/12/14/xmlbuilder-easily-build-xml-docs-in-java/)|1.1|XMLBuilder for database to XML export| |
+	|[Apache Commons CSVReader](https://commons.apache.org/proper/commons-csv/)|1.5|Used to parse the provided CSVs and add the data to the database| |
+	|[Univocity Parsers](https://github.com/uniVocity/univocity-parsers)|1.0.0|Dependency of Apache Commons CSVReader||
+	|[Debatty's LSH](https://github.com/tdebatty/java-LSH/tree/master/src/main/java/info/debatty/java/lsh)|RELEASE|LSH Implementation|Used in the NNCF algorithm|

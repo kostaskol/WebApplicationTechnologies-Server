@@ -7,152 +7,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92b06a3a-cfd2-4133-a20f-f6fd5579af69" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/allclasses-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/allclasses-noframe.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/DateFixer.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/db/DataSource.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/db/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/db/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/db/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/etc/Constants.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/etc/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/etc/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/etc/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/Authenticator.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/CORSFilter.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/admin/AdminControl.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/admin/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/admin/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/admin/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/BookedHouseBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/BookingBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/ChangeMailBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/CommentBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/HouseBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/HouseMinBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/HouseUpdateBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/MessageBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/PassResetBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/SignUpBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/TestBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/UserBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/UserCredentialBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/UserMinBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/UserUpdateBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/entities/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/HouseControl.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/bookings/BookingControl.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/bookings/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/bookings/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/bookings/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/comments/CommentControl.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/comments/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/comments/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/comments/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/houses/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/jacksonClasses/authentication/LoginBean.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/jacksonClasses/authentication/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/jacksonClasses/authentication/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/jacksonClasses/authentication/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/UserControl.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/messages/MessageControl.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/messages/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/messages/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/messages/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/rest/users/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/DateRange.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/MyVector.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/QueryBuilder.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/Tuple.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/XmlParser.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/blacklist/BlackList.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/blacklist/TokenDeletionTimer.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/blacklist/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/blacklist/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/blacklist/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/ConnectionCloser.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/DateHelper.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/FileHelper.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/HouseGetter.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/ReverseGeocoder.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/XmlBuilder.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/helpers/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/passwordverifier/PasswordVerifier.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/passwordverifier/package-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/passwordverifier/package-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/com/WAT/airbnb/util/passwordverifier/package-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/constant-values.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/deprecated-list.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/help-doc.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-1.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-10.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-11.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-12.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-13.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-14.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-15.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-16.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-17.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-18.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-19.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-2.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-20.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-21.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-22.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-3.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-4.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-5.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-6.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-7.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-8.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index-files/index-9.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/index.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/overview-frame.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/overview-summary.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/overview-tree.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/package-list" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/script.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/jd/stylesheet.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/DBFixer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/DateFixer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Test.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/jacksonClasses/authentication/LoginBean.java" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/MyVector.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/Vector.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TODOs.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Constants.xml" afterPath="$PROJECT_DIR$/Constants.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.xml" afterPath="$PROJECT_DIR$/config.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/Constants.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/Constants.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Authenticator.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Authenticator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/admin/AdminControl.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/admin/AdminControl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/entities/UserCredentialBean.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/entities/UserCredentialBean.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/HouseControl.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/HouseControl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/bookings/BookingControl.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/bookings/BookingControl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/comments/CommentControl.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/comments/CommentControl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/UserControl.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/UserControl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/messages/MessageControl.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/messages/MessageControl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/XmlParser.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/XmlParser.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/blacklist/BlackList.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/blacklist/BlackList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/blacklist/TokenDeletionTimer.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/blacklist/TokenDeletionTimer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/ConnectionCloser.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/ConnectionCloser.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/FileHelper.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/FileHelper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/HouseGetter.java" afterPath="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/HouseGetter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -220,140 +78,7 @@
     <favorites_list name="wat" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="HouseControl.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/HouseControl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-419">
-              <caret line="683" column="28" lean-forward="false" selection-start-line="683" selection-start-column="28" selection-end-line="683" selection-end-column="28" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <marker date="1506199297405" expanded="true" signature="3191:3280" ph="INSERT INTO houses... " />
-                <marker date="1506199297405" expanded="true" signature="3191:3617" ph="INSERT INTO houses... " />
-                <marker date="1506199297405" expanded="true" signature="3191:3875" ph="INSERT INTO houses... " />
-                <marker date="1506199297405" expanded="true" signature="3191:3876" ph="INSERT INTO houses... " />
-                <marker date="1506199297405" expanded="true" signature="6789:6919" ph="INSERT INTO photographs... " />
-                <marker date="1506199297405" expanded="true" signature="13413:13473" ph="SELECT pictu... photographs" />
-                <marker date="1506199297405" expanded="true" signature="14839:14892" ph="SELECT COUNT... houses" />
-                <marker date="1506199297405" expanded="true" signature="16013:16153" ph="SELECT house... houses" />
-                <marker date="1506199297405" expanded="true" signature="16983:17054" ph="SELECT thumb... photographs" />
-                <marker date="1506199297405" expanded="true" signature="19099:19137" ph="SELECT DISTI... comments" />
-                <marker date="1506199297405" expanded="true" signature="19800:19837" ph="SELECT DISTI... comments" />
-                <marker date="1506199297405" expanded="true" signature="20445:20495" ph="SELECT COUNT... comments" />
-                <marker date="1506199297405" expanded="true" signature="21318:21362" ph="SELECT house... comments" />
-                <marker date="1506199297405" expanded="true" signature="27713:27830" ph="SELECT house... houses" />
-                <marker date="1506199297405" expanded="true" signature="28516:28643" ph="SELECT thumb... photographs" />
-                <marker date="1506199297405" expanded="true" signature="29806:29856" ph="SELECT COUNT... searches" />
-                <marker date="1506199297405" expanded="true" signature="30575:30619" ph="SELECT house... comments" />
-                <marker date="1506199297405" expanded="true" signature="31322:31366" ph="SELECT house... searches" />
-                <marker date="1506199297405" expanded="true" signature="35182:35303" ph="SELECT house... houses" />
-                <marker date="1506199297405" expanded="true" signature="36033:36164" ph="SELECT thumb... photographs" />
-                <marker date="1506199297405" expanded="true" signature="41084:41214" ph="SELECT house... houses" />
-                <marker date="1506199297405" expanded="true" signature="42885:42961" ph="INSERT INTO searches... " />
-                <marker date="1506199297405" expanded="true" signature="44194:44249" ph="SELECT dateF... bookings" />
-                <marker date="1506199297405" expanded="true" signature="45038:45084" ph="SELECT * FRO... houses" />
-                <marker date="1506199297405" expanded="true" signature="47681:47733" ph="SELECT pictu... photographs" />
-                <marker date="1506199297405" expanded="true" signature="48200:48262" ph="SELECT first... users" />
-                <marker date="1506199297405" expanded="true" signature="50206:50811" ph="UPDATE house... " />
-                <marker date="1506199297405" expanded="true" signature="53600:53717" ph="INSERT INTO photographs... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="config.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="4" column="52" lean-forward="false" selection-start-line="4" selection-start-column="52" selection-end-line="4" selection-end-column="52" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MessageControl.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/messages/MessageControl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="941">
-              <caret line="236" column="32" lean-forward="false" selection-start-line="236" selection-start-column="32" selection-end-line="236" selection-end-column="32" />
-              <folding>
-                <marker date="1506197216367" expanded="true" signature="1503:1645" ph="INSERT INTO messages... " />
-                <marker date="1506197216367" expanded="true" signature="3690:3746" ph="SELECT delet... messages" />
-                <marker date="1506197216367" expanded="true" signature="4395:4443" ph="DELETE FROM " />
-                <marker date="1506197216367" expanded="true" signature="4882:4941" ph="UPDATE messa... " />
-                <marker date="1506197216367" expanded="true" signature="5417:5465" ph="DELETE FROM " />
-                <marker date="1506197216367" expanded="true" signature="5677:5736" ph="UPDATE messa... " />
-                <marker date="1506197216367" expanded="true" signature="7563:7625" ph="SELECT * FRO... messages" />
-                <marker date="1506197216367" expanded="true" signature="7674:7734" ph="SELECT * FRO... messages" />
-                <marker date="1506197216367" expanded="true" signature="9046:9108" ph="SELECT first... users" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="UserControl.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/UserControl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="509">
-              <caret line="526" column="22" lean-forward="true" selection-start-line="526" selection-start-column="22" selection-end-line="526" selection-end-column="22" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <marker date="1506199542118" expanded="true" signature="2492:2509" ph="insert into users... " />
-                <marker date="1506199542118" expanded="true" signature="2492:2702" ph="insert into users... " />
-                <marker date="1506199542118" expanded="true" signature="5794:5837" ph="UPDATE users... " />
-                <marker date="1506199542118" expanded="true" signature="6800:6970" ph="SELECT email... users" />
-                <marker date="1506199542118" expanded="true" signature="8670:8721" ph="SELECT COUNT... comments" />
-                <marker date="1506199542118" expanded="true" signature="9391:9494" ph="SELECT accTy... users" />
-                <marker date="1506199542118" expanded="true" signature="11726:11784" ph="UPDATE users... " />
-                <marker date="1506199542118" expanded="true" signature="13476:13519" ph="UPDATE users... " />
-                <marker date="1506199542118" expanded="true" signature="15026:15074" ph="UPDATE users... " />
-                <marker date="1506199542118" expanded="true" signature="16674:16717" ph="SELECT * FRO... users" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Authenticator.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Authenticator.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1368">
-              <caret line="85" column="71" lean-forward="false" selection-start-line="85" selection-start-column="71" selection-end-line="85" selection-end-column="71" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CORSFilter.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/CORSFilter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="9" column="55" lean-forward="false" selection-start-line="9" selection-start-column="55" selection-end-line="9" selection-end-column="55" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Constants.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/Constants.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="498">
-              <caret line="42" column="42" lean-forward="true" selection-start-line="42" selection-start-column="42" selection-end-line="42" selection-end-column="42" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DataSource.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/db/DataSource.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="17" column="31" lean-forward="false" selection-start-line="17" selection-start-column="31" selection-end-line="17" selection-end-column="31" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -428,7 +153,6 @@
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/MatrixRow.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/matrix/MatrixCell.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/matrix/MatrixRow.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/matrix/Matrix.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/XmlParser.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/ScopeFillHelper.java" />
@@ -471,6 +195,7 @@
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/HouseControl.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/UserControl.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Authenticator.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>
@@ -515,8 +240,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -529,6 +252,11 @@
               <item name="wat" type="b2602c69:ProjectViewProjectNode" />
               <item name="wat" type="462c0819:PsiDirectoryNode" />
               <item name="img" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wat" type="462c0819:PsiDirectoryNode" />
+              <item name="jd" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wat" type="b2602c69:ProjectViewProjectNode" />
@@ -565,130 +293,12 @@
               <item name="airbnb" type="462c0819:PsiDirectoryNode" />
               <item name="db" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="rest" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="rest" type="462c0819:PsiDirectoryNode" />
-              <item name="admin" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="rest" type="462c0819:PsiDirectoryNode" />
-              <item name="houses" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="rest" type="462c0819:PsiDirectoryNode" />
-              <item name="houses" type="462c0819:PsiDirectoryNode" />
-              <item name="bookings" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="rest" type="462c0819:PsiDirectoryNode" />
-              <item name="houses" type="462c0819:PsiDirectoryNode" />
-              <item name="comments" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="rest" type="462c0819:PsiDirectoryNode" />
-              <item name="users" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="rest" type="462c0819:PsiDirectoryNode" />
-              <item name="users" type="462c0819:PsiDirectoryNode" />
-              <item name="messages" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="util" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="util" type="462c0819:PsiDirectoryNode" />
-              <item name="blacklist" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="util" type="462c0819:PsiDirectoryNode" />
-              <item name="helpers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="airbnb" type="462c0819:PsiDirectoryNode" />
-              <item name="util" type="462c0819:PsiDirectoryNode" />
-              <item name="passwordverifier" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1241,7 +851,6 @@
     <frame x="1360" y="27" width="1920" height="1053" extended-state="6" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32560706" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Java Enterprise" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31898454" sideWeight="0.5064034" order="8" side_tool="true" content_ui="tabs" />
@@ -1251,7 +860,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31898454" sideWeight="0.49359658" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16488793" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16808964" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.09391676" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1264,6 +873,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2497332" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32560706" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
@@ -1296,14 +906,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/lshtest.txt" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/XmlParser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/entities/BookedHouseBean.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="36">
@@ -1358,7 +960,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
           <caret line="25" column="24" lean-forward="false" selection-start-line="25" selection-start-column="24" selection-end-line="25" selection-end-column="24" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1366,7 +967,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="19" column="15" lean-forward="false" selection-start-line="19" selection-start-column="15" selection-end-line="19" selection-end-column="15" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1397,7 +997,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
           <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1416,11 +1015,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="319">
           <caret line="78" column="50" lean-forward="false" selection-start-line="78" selection-start-column="50" selection-end-line="78" selection-end-column="50" />
-          <folding>
-            <marker date="1506091826579" expanded="true" signature="1087:1114" ph="SELECT * FRO... invalidTokens" />
-            <marker date="1506091826579" expanded="true" signature="1954:1997" ph="DELETE FROM " />
-            <marker date="1506091826579" expanded="true" signature="2809:2826" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1428,7 +1022,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="540">
           <caret line="38" column="38" lean-forward="false" selection-start-line="38" selection-start-column="38" selection-end-line="38" selection-end-column="38" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1436,31 +1029,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="906">
           <caret line="92" column="50" lean-forward="false" selection-start-line="92" selection-start-column="50" selection-end-line="92" selection-end-column="50" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/DBFixer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="67" column="33" lean-forward="false" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/DBFixer.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/bookings/BookingControl.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3582">
           <caret line="214" column="55" lean-forward="false" selection-start-line="214" selection-start-column="55" selection-end-line="214" selection-end-column="55" />
-          <folding>
-            <marker date="1506197512103" expanded="true" signature="1467:1578" ph="INSERT INTO bookings... " />
-            <marker date="1506197512103" expanded="true" signature="2959:3582" ph="SELECT users... houses" />
-            <marker date="1506197512103" expanded="true" signature="5885:5959" ph="SELECT house... bookings" />
-            <marker date="1506197512103" expanded="true" signature="6944:7024" ph="SELECT house... houses" />
-            <marker date="1506197512103" expanded="true" signature="8955:9027" ph="SELECT NULL bookings" />
-            <marker date="1506197512103" expanded="true" signature="9384:9444" ph="SELECT NULL bookings" />
-            <marker date="1506197512103" expanded="true" signature="10131:10186" ph="DELETE FROM " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1468,13 +1044,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2286">
           <caret line="143" column="71" lean-forward="false" selection-start-line="143" selection-start-column="71" selection-end-line="143" selection-end-column="71" />
-          <folding>
-            <marker date="1506108669863" expanded="true" signature="1662:1730" ph="SELECT userI... comments" />
-            <marker date="1506108669863" expanded="true" signature="2094:2166" ph="INSERT INTO comments... " />
-            <marker date="1506108669863" expanded="true" signature="3474:3534" ph="UPDATE comme... " />
-            <marker date="1506108669863" expanded="true" signature="4419:4459" ph="SELECT * FRO... comments" />
-            <marker date="1506108669863" expanded="true" signature="5109:5171" ph="SELECT first... users" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1482,7 +1051,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="715">
           <caret line="280" column="57" lean-forward="true" selection-start-line="280" selection-start-column="57" selection-end-line="280" selection-end-column="57" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1491,7 +1059,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="3" column="19" lean-forward="false" selection-start-line="3" selection-start-column="19" selection-end-line="3" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1521,31 +1088,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/jacksonClasses/authentication/LoginBean.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="3" column="18" lean-forward="false" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/jacksonClasses/authentication/LoginBean.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/XmlBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="232" column="28" lean-forward="false" selection-start-line="232" selection-start-column="28" selection-end-line="232" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/img/houses/2185/1506194000371.jpg">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/img/houses/2185/thumb/1506194000371_thumb.jpg">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/img/houses/2185/1506194000371.jpg" />
+    <entry file="file://$PROJECT_DIR$/img/houses/2185/thumb/1506194000371_thumb.jpg" />
     <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/util/helpers/FileHelper.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="274">
@@ -1556,7 +1108,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/messages/MessageControl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="941">
+        <state relative-caret-position="3960">
           <caret line="236" column="32" lean-forward="false" selection-start-line="236" selection-start-column="32" selection-end-line="236" selection-end-column="32" />
           <folding>
             <marker date="1506197216367" expanded="true" signature="1503:1645" ph="INSERT INTO messages... " />
@@ -1576,15 +1128,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="336">
           <caret line="22" column="16" lean-forward="false" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/db/DataSource.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="17" column="31" lean-forward="false" selection-start-line="17" selection-start-column="31" selection-end-line="17" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1596,9 +1139,70 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/Constants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="42" column="42" lean-forward="false" selection-start-line="42" selection-start-column="42" selection-end-line="42" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/UserControl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8892">
+          <caret line="526" column="22" lean-forward="false" selection-start-line="526" selection-start-column="22" selection-end-line="526" selection-end-column="22" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1506199542118" expanded="true" signature="2492:2509" ph="insert into users... " />
+            <marker date="1506199542118" expanded="true" signature="2492:2702" ph="insert into users... " />
+            <marker date="1506199542118" expanded="true" signature="5794:5837" ph="UPDATE users... " />
+            <marker date="1506199542118" expanded="true" signature="6800:6970" ph="SELECT email... users" />
+            <marker date="1506199542118" expanded="true" signature="8670:8721" ph="SELECT COUNT... comments" />
+            <marker date="1506199542118" expanded="true" signature="9391:9494" ph="SELECT accTy... users" />
+            <marker date="1506199542118" expanded="true" signature="11726:11784" ph="UPDATE users... " />
+            <marker date="1506199542118" expanded="true" signature="13476:13519" ph="UPDATE users... " />
+            <marker date="1506199542118" expanded="true" signature="15026:15074" ph="UPDATE users... " />
+            <marker date="1506199542118" expanded="true" signature="16674:16717" ph="SELECT * FRO... users" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Authenticator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1368">
+          <caret line="85" column="71" lean-forward="false" selection-start-line="85" selection-start-column="71" selection-end-line="85" selection-end-column="71" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Test.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/CORSFilter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jd/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="102" column="21" lean-forward="true" selection-start-line="102" selection-start-column="21" selection-end-line="102" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/houses/HouseControl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-419">
+        <state relative-caret-position="0">
           <caret line="683" column="28" lean-forward="false" selection-start-line="683" selection-start-column="28" selection-end-line="683" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -1634,54 +1238,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/etc/Constants.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/db/DataSource.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="498">
-          <caret line="42" column="42" lean-forward="true" selection-start-line="42" selection-start-column="42" selection-end-line="42" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/users/UserControl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="509">
-          <caret line="526" column="22" lean-forward="true" selection-start-line="526" selection-start-column="22" selection-end-line="526" selection-end-column="22" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1506199542118" expanded="true" signature="2492:2509" ph="insert into users... " />
-            <marker date="1506199542118" expanded="true" signature="2492:2702" ph="insert into users... " />
-            <marker date="1506199542118" expanded="true" signature="5794:5837" ph="UPDATE users... " />
-            <marker date="1506199542118" expanded="true" signature="6800:6970" ph="SELECT email... users" />
-            <marker date="1506199542118" expanded="true" signature="8670:8721" ph="SELECT COUNT... comments" />
-            <marker date="1506199542118" expanded="true" signature="9391:9494" ph="SELECT accTy... users" />
-            <marker date="1506199542118" expanded="true" signature="11726:11784" ph="UPDATE users... " />
-            <marker date="1506199542118" expanded="true" signature="13476:13519" ph="UPDATE users... " />
-            <marker date="1506199542118" expanded="true" signature="15026:15074" ph="UPDATE users... " />
-            <marker date="1506199542118" expanded="true" signature="16674:16717" ph="SELECT * FRO... users" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Authenticator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1368">
-          <caret line="85" column="71" lean-forward="false" selection-start-line="85" selection-start-column="71" selection-end-line="85" selection-end-column="71" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/Test.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="840">
-          <caret line="539" column="2" lean-forward="false" selection-start-line="539" selection-start-column="2" selection-end-line="539" selection-end-column="2" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/WAT/airbnb/rest/CORSFilter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="9" column="55" lean-forward="false" selection-start-line="9" selection-start-column="55" selection-end-line="9" selection-end-column="55" />
+        <state relative-caret-position="198">
+          <caret line="17" column="31" lean-forward="false" selection-start-line="17" selection-start-column="31" selection-end-line="17" selection-end-column="31" />
           <folding />
         </state>
       </provider>

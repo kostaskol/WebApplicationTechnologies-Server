@@ -123,6 +123,7 @@
             <version>1.0.0</version>
         </dependency>
 
+        <!-- LSH -->
         <dependency>
             <groupId>info.debatty</groupId>
             <artifactId>java-lsh</artifactId>
