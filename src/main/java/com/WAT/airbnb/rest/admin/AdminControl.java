@@ -68,10 +68,14 @@ public class AdminControl {
         ResultSet rs = null;
         try {
             con = DataSource.getInstance().getConnection();
-            String query = "SELECT userID, passwd FROM users WHERE email = ? AND accType " +
-                    "LIKE \"1%\" LIMIT 1";
+            String query = "SELECT userID, passwd, accType " +
+                    "FROM users " +
+                    "WHERE email = ? " +
+                    "HAVING accType LIKE \"1%\" " +
+                    "LIMIT 1";
             pSt = con.prepareStatement(query);
             pSt.setString(1, bean.getEmail());
+            System.out.println("Executing: " + pSt);
             rs = pSt.executeQuery();
             if (rs.next()) {
                 PasswordVerifier pv = new PasswordVerifier(rs.getString("passwd"), true);

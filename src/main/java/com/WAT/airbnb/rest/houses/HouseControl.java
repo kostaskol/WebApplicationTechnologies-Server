@@ -323,12 +323,12 @@ public class HouseControl {
                 minEntity.setMinCost(rs.getInt("minCost"));
 
                 Connection picCon = DataSource.getInstance().getConnection();
-                String query = "SELECT pictureURL from photographs WHERE houseId = ? LIMIT 1";
+                String query = "SELECT thumbURL from photographs WHERE houseId = ? LIMIT 1";
                 pSt = picCon.prepareStatement(query);
                 pSt.setInt(1, minEntity.getHouseId());
                 ResultSet picRs = pSt.executeQuery();
                 if (picRs.next()) {
-                    minEntity.setPicture(FileHelper.getFileAsString(picRs.getString("pictureURL")));
+                    minEntity.setPicture(FileHelper.getFileAsString(picRs.getString("thumbURL")));
                 }
 
                 ConnectionCloser.getCloser()
@@ -978,10 +978,11 @@ public class HouseControl {
     public Response getHousePost(@PathParam("houseId") int houseId,
                                  String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
+
         if (!auth.authenticate()) {
-            return Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .build();
+            // We do not return a 401 on authentication failure because the user
+            // should be able to see the house even if their token is not valid
+            return getHouse(houseId);
         }
 
         int id = auth.getId();
@@ -1116,7 +1117,8 @@ public class HouseControl {
                    userPSt.setInt(1, rs.getInt("ownerID"));
                    ResultSet userRs = userPSt.executeQuery();
                    if (userRs.next()) {
-                       house.setOwnerName(userRs.getString("firstName") + " " + userRs.getString("lastName"));
+                       house.setOwnerName(userRs.getString("firstName") + " "
+                               + userRs.getString("lastName"));
                    }
                } catch (SQLException e) {
                    e.printStackTrace();
@@ -1229,12 +1231,14 @@ public class HouseControl {
         try {
             con = DataSource.getInstance().getConnection();
             String fileUrl = FileHelper.saveFile(uploadedInputStream, id, fileDetails,false);
-            String insert = "INSERT INTO photographs (houseID, pictureURL, main)" +
+            String thumbUrl = FileHelper.saveFileThumb(fileUrl, id);
+            String insert = "INSERT INTO photographs (houseID, pictureURL, thumbURL, main)" +
                     "VALUES (" +
-                    "?, ?, 0)";
+                    "?, ?, ?, 0)";
             pSt = con.prepareStatement(insert);
             pSt.setInt(1, houseID);
             pSt.setString(2, fileUrl);
+            pSt.setString(3, thumbUrl);
             pSt.execute();
             return Response.ok().build();
         } catch (Exception e) {

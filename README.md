@@ -1,15 +1,38 @@
 #AirBnB (Clone) for Web Application Technology (UoA:DIT)
 ## Server Side
-* ### Functionality
+* ## Index
+	* #### [Functionality](#func)
+	* #### [Implementation](#impl)
+	* #### [Points worthy of mention](#points)
+	* #### [Database](#db)
+		* ##### [Tables](#tables)
+	* #### [Third party libraries used](#tpl)
+	* #### [Known mistakes and errors](#errors)
+
+* ### <a name="func"></a> Functionality
 	* RESTful Web Service that utilises the Jersey JAX-RS implementation. 
 	* It uses a MySQL Database to store the data. More information can be found in the [Database](#db) section of this file.
 	
-* ### Implementation
+* ### <a name="impl"></a> Implementation
 	* Due to the size of the application, no implementation details are written here. These can be found in the form of JavaDoc in {ROOT}/jd/index.html
+	
+* ### <a name="points"></a> Points worthy of mention
+	* This section describes some of the note worthy points of the application
+	1. When a user first signs up, the provided password is hashed (using Spring Framework Security - See [Third party libraries](#tpl)) and that hash is stored in the database. Although only Prepared Statements have been used during access to the database, thus providing a reasonable amount of security against SQL Injections, this method helps us better secure the database and our users' information.
+	2. The values taken from the sentiment JavaScript framework have been "compressed" between the values 0 and 1 before being stored in the database.
+	3. The NNCF algorithm works in the following way:
+		* If we do not have enough information on a user then we query the user's past searches and create an NxM matrix, where N is the amount of users and M the amount of houses, where Cell(i, j) = 1 if the user i has rated the house j positively (currently 0.5 or above) and 0 otherwise. We use the LSH algorithm on that matrix and find the other users that hashed into the same bucket at the current user. We then calculate the cosine similarity between the the current user and the other users, we sort those results, we find houses rated by the other top 10 users and not the current user and we return the first 4 of these.
+		* If we do have enough information, we query the actual comments table (see [tables](#tables)) and we follow the same steps as before, with the exception that in the cosine similarity calculation, we use the actual values of the ratings (thus getting more relevant results)
+	4. During XML Export, due to the size of the comments table (see [tables](#tables)) (691,055 comments of various length at the time of writing - about 220MB) it is highly advised to comment that section out during any kind of testing on a non-server machine.
 	
 * ### <a name="db"></a> Database
 	* The database is designed to be in 3NF, meaning that no redundant data is held in any of the tables and each reference to existing data is in the form of foreign keys.
 	* Accesses to the database are managed by Apache Commons' Connection pooling.
+	* The following settings need to be specified in the {ROOT}/config.xml file for the server to run on a machine
+		* The driver class
+		* The JDBC Url
+		* The username
+		* The password
 	* #### <a name="tables"> </a> Tables
 	
 	|Name|Usage|Key(s)|Foreign Keys| Additional Comments|
@@ -25,7 +48,7 @@
 
 
 
-* ###Third party libraries used:
+* ### <a name="tpl"></a> Third party libraries used:
 
 	|Library|Version | Usage|Extra comments|
 	|------|-----|-----|------|
@@ -43,3 +66,9 @@
 	|[Apache Commons CSVReader](https://commons.apache.org/proper/commons-csv/)|1.5|Used to parse the provided CSVs and add the data to the database| |
 	|[Univocity Parsers](https://github.com/uniVocity/univocity-parsers)|1.0.0|Dependency of Apache Commons CSVReader||
 	|[Debatty's LSH](https://github.com/tdebatty/java-LSH/tree/master/src/main/java/info/debatty/java/lsh)|RELEASE|LSH Implementation|Used in the NNCF algorithm|
+	
+* ### <a name="errors"></a> Known mistakes (due to time constraints)
+	* The application is not polished. 
+		* Not all possible errors are addressed (most exceptions simply return a 500 error with no further explanation).
+		* More checks could be made in various operations (i.e. a user being able to comment on a house only after booking and visiting a house)
+	* The NNCF algorithm is not optimized meaning that some unnecessary calculations are made.
