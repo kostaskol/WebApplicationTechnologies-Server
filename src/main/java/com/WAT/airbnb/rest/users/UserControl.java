@@ -108,7 +108,7 @@ public class UserControl {
                 }
 
             }
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -125,8 +125,9 @@ public class UserControl {
     @Path("/login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response authenticate(UserCredentialBean bean) {
+        System.out.println("Got mail: " + bean.getEmail() + " and password: " + bean.getPasswd());
         try {
             UserInfo info = authenticateAgainstDB(bean.getEmail(), bean.getPasswd());
             if (info == null) {
@@ -135,13 +136,106 @@ public class UserControl {
 
             String token = issueToken(info);
 
-            String response = "{\"token\": " + token + "}";
-            return Response.ok(response).build();
+            return Response.ok(token).build();
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    /**
+     *
+     * @param email Email to be checked
+     * @param passwd User provided password to be checked
+     * @return A UserInfo object on successful authentication null on failure
+     * @throws Exception At any error
+     */
+    private UserInfo authenticateAgainstDB(String email, String passwd) throws Exception {
+        Connection con = null;
+        PreparedStatement pSt = null;
+        ResultSet rs = null;
+        UserInfo info = new UserInfo();
+        try {
+            con = DataSource.getInstance().getConnection();
+
+            String queryString = "SELECT userID, passwd, accType " +
+                    "FROM users " +
+                    "WHERE email = ? " +
+                    "LIMIT 1";
+            pSt = con.prepareStatement(queryString);
+
+            pSt.setString(1, email);
+            rs = pSt.executeQuery();
+            if (!rs.next()) {
+                return null;
+            } else {
+                // Tries to verify the hashed password
+                PasswordVerifier pass = new PasswordVerifier(rs.getString("passwd"), true);
+                try {
+                    if (pass.verify(passwd)) {
+                        info.id = rs.getInt("userID");
+                        String accType = rs.getString("accType");
+                        if (accType.charAt(Constants.ADMIN_OFFS) == '1') {
+                            info.accountType = Constants.TYPE_ADMIN;
+                        } else if (accType.charAt(Constants.RENTER_OFFS) == '1') {
+                            info.accountType = Constants.TYPE_RENTER;
+                        } else if (accType.charAt(Constants.USER_OFFS) == '1') {
+                            info.accountType = Constants.TYPE_USER;
+                        }
+                        return info;
+                    } else {
+                        return null;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }finally {
+            ConnectionCloser.getCloser()
+                    .closeConnection(con)
+                    .closeResultSet(rs);
+        }
+    }
+
+    /**
+     * Issues a JWT token to the provided userID
+     * @return The JWT token
+     */
+    private String issueToken(UserInfo info) {
+
+        JwtBuilder builder = Jwts.builder()
+                .setSubject("users/" + info.id)
+                .claim("id", String.valueOf(info.id));
+        long expMillis;
+        switch (info.accountType) {
+            case Constants.TYPE_ADMIN:
+                builder.claim("scope", Constants.SCOPE_ADMINS);
+                // For admins, we set a 3 minute reset on the token
+                expMillis = System.currentTimeMillis() + Constants.ADMIN_EXPIRATION_TIME;
+                break;
+            case Constants.TYPE_RENTER:
+                builder.claim("scope", Constants.SCOPE_RENTERS);
+                expMillis = System.currentTimeMillis() + Constants.EXPIRATION_TIME_ALL;
+                break;
+            case Constants.TYPE_USER:
+                builder.claim("scope", Constants.SCOPE_USERS);
+                expMillis = System.currentTimeMillis() + Constants.EXPIRATION_TIME_ALL;
+                break;
+            default:
+                System.err.println("Unknown user type");
+                return null;
+        }
+        builder.setExpiration(new Date(expMillis));
+
+        return builder.signWith(SignatureAlgorithm.HS256, Constants.key).compact();
+    }
+
+
 
     /**
      * Resets the user's current password
@@ -444,96 +538,4 @@ public class UserControl {
         }
         return Response.ok().build();
     }
-
-    /**
-     *
-     * @param email Email to be checked
-     * @param passwd User provided password to be checked
-     * @return A UserInfo object on successful authentication null on failure
-     * @throws Exception
-     */
-    private UserInfo authenticateAgainstDB(String email, String passwd) throws Exception {
-        Connection con = null;
-        PreparedStatement pSt = null;
-        ResultSet rs = null;
-        UserInfo info = new UserInfo();
-        try {
-            con = DataSource.getInstance().getConnection();
-
-            String queryString = "SELECT * FROM users WHERE email = ? LIMIT 1";
-            pSt = con.prepareStatement(queryString);
-
-            pSt.setString(1, email);
-            rs = pSt.executeQuery();
-            if (!rs.next()) {
-                return null;
-            } else {
-                // Tries to verify the hashed password
-                PasswordVerifier pass = new PasswordVerifier(rs.getString("passwd"), true);
-                try {
-                    if (pass.verify(passwd)) {
-                        info.id = rs.getInt("userID");
-                        String accType = rs.getString("accType");
-                        if (accType.charAt(Constants.ADMIN_OFFS) == '1') {
-                            info.accountType = Constants.TYPE_ADMIN;
-                        } else if (accType.charAt(Constants.RENTER_OFFS) == '1') {
-                            info.accountType = Constants.TYPE_RENTER;
-                        } else if (accType.charAt(Constants.USER_OFFS) == '1') {
-                            info.accountType = Constants.TYPE_USER;
-                        }
-                        return info;
-                    } else {
-                        return null;
-                    }
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }finally {
-            ConnectionCloser.getCloser()
-                .closeConnection(con)
-                .closeResultSet(rs);
-        }
-    }
-
-    /**
-     * Issues a JWT token to the provided userID
-     * @return The JWT token
-     */
-    private String issueToken(UserInfo info) {
-
-        JwtBuilder builder = Jwts.builder()
-                .setSubject("users/" + info.id)
-                .claim("id", String.valueOf(info.id));
-        long expMillis;
-        switch (info.accountType) {
-            case Constants.TYPE_ADMIN:
-                builder.claim("scope", Constants.SCOPE_ADMINS);
-                // For admins, we set a 3 minute reset on the token
-                expMillis = System.currentTimeMillis() + Constants.ADMIN_EXPIRATION_TIME;
-                break;
-            case Constants.TYPE_RENTER:
-                builder.claim("scope", Constants.SCOPE_RENTERS);
-                expMillis = System.currentTimeMillis() + Constants.EXPIRATION_TIME_ALL;
-                break;
-            case Constants.TYPE_USER:
-                builder.claim("scope", Constants.SCOPE_USERS);
-                expMillis = System.currentTimeMillis() + Constants.EXPIRATION_TIME_ALL;
-                break;
-            default:
-                System.err.println("Unknown user type");
-                return null;
-        }
-        builder.setExpiration(new Date(expMillis));
-
-        return builder.signWith(SignatureAlgorithm.HS256, Constants.key).compact();
-    }
-
-
-
 }

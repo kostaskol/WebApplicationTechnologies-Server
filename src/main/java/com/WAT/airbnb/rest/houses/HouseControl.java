@@ -978,10 +978,11 @@ public class HouseControl {
     public Response getHousePost(@PathParam("houseId") int houseId,
                                  String token) {
         Authenticator auth = new Authenticator(token, Constants.TYPE_USER);
+
         if (!auth.authenticate()) {
-            return Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .build();
+            // We do not return a 401 on authentication failure because the user
+            // should be able to see the house even if their token is not valid
+            return getHouse(houseId);
         }
 
         int id = auth.getId();

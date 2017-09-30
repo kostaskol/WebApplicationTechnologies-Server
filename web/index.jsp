@@ -10,5 +10,6 @@
   <head>
   </head>
   <body>
+	<h1>Airbnb RESTful Client. See javadocs for available paths</h2>
   </body>
 </html>
